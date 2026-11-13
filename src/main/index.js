@@ -16,13 +16,13 @@ function createWindow() {
     alwaysOnTop: true,
     skipTaskbar: true,
     webPreferences: {
-      preload: path.join(__dirname, 'preload.js'),
+      preload: path.join(__dirname, '../renderer/preload.js'),
       contextIsolation: true,
       nodeIntegration: false,
     },
   });
 
-  win.loadFile(path.join(__dirname, 'index.html'));
+  win.loadFile(path.join(__dirname, '../renderer/index.html'));
 
   // 他のところをクリックしたら隠す
   win.on('blur', () => win.hide());
