@@ -1,5 +1,6 @@
-const { app, BrowserWindow, globalShortcut } = require('electron');
+const { app, BrowserWindow, globalShortcut, ipcMain } = require('electron');
 const path = require('path');
+const { getApps } = require('./apps');
 
 const HOTKEY = 'CommandOrControl+Shift+Space';
 
@@ -8,13 +9,14 @@ let win;
 function createWindow() {
   win = new BrowserWindow({
     width: 600,
-    height: 80,
+    height: 340,
     show: false,
     frame: false,
     resizable: false,
     alwaysOnTop: true,
     skipTaskbar: true,
     webPreferences: {
+      preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,
       nodeIntegration: false,
     },
@@ -44,6 +46,7 @@ function toggleWindow() {
 }
 
 app.whenReady().then(() => {
+  ipcMain.handle('get-apps', () => getApps());
   createWindow();
 
   if (!globalShortcut.register(HOTKEY, toggleWindow)) {

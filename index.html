@@ -6,16 +6,20 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Lancher</title>
   <style>
-    html, body { margin: 0; height: 100%; background: #1e1e1e; font-family: system-ui, sans-serif; }
-    body { display: flex; align-items: center; padding: 0 16px; box-sizing: border-box; }
+    html, body { margin: 0; height: 100%; background: #1e1e1e; color: #fff; font-family: system-ui, sans-serif; }
+    body { padding: 16px; box-sizing: border-box; }
     input {
       width: 100%; font-size: 24px; color: #fff; background: transparent;
-      border: none; outline: none;
+      border: none; outline: none; margin-bottom: 12px;
     }
     input::placeholder { color: #888; }
+    ul { list-style: none; margin: 0; padding: 0; max-height: 240px; overflow-y: auto; }
+    li { padding: 8px 4px; font-size: 16px; border-top: 1px solid #333; }
   </style>
 </head>
 <body>
-  <input type="text" placeholder="アプリ名を入力" autofocus>
+  <input id="query" type="text" placeholder="アプリ名を入力" autofocus>
+  <ul id="results"></ul>
+  <script src="renderer.js"></script>
 </body>
 </html>
