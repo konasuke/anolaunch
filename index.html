@@ -2,12 +2,20 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Lancher</title>
+  <style>
+    html, body { margin: 0; height: 100%; background: #1e1e1e; font-family: system-ui, sans-serif; }
+    body { display: flex; align-items: center; padding: 0 16px; box-sizing: border-box; }
+    input {
+      width: 100%; font-size: 24px; color: #fff; background: transparent;
+      border: none; outline: none;
+    }
+    input::placeholder { color: #888; }
+  </style>
 </head>
 <body>
-  <h1>Lancher</h1>
-  <p>Hello, Electron!</p>
+  <input type="text" placeholder="アプリ名を入力" autofocus>
 </body>
 </html>
