@@ -1,4 +1,4 @@
-const { app, BrowserWindow, globalShortcut, ipcMain } = require('electron');
+const { app, BrowserWindow, globalShortcut, ipcMain, shell } = require('electron');
 const path = require('path');
 const { getApps } = require('./apps');
 
@@ -47,6 +47,14 @@ function toggleWindow() {
 
 app.whenReady().then(() => {
   ipcMain.handle('get-apps', () => getApps());
+
+  // 一覧にあるアプリだけ起動する（画面側から任意のパスを渡されても開かない）
+  ipcMain.handle('launch-app', async (event, appPath) => {
+    if (!getApps().some((a) => a.path === appPath)) return;
+    win.hide();
+    const error = await shell.openPath(appPath);
+    if (error) console.error(`起動できませんでした: ${appPath}: ${error}`);
+  });
   createWindow();
 
   if (!globalShortcut.register(HOTKEY, toggleWindow)) {

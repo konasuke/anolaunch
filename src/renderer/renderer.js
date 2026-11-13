@@ -1,5 +1,8 @@
 // インストールされているアプリの一覧（メインプロセスが集めて渡す）
 let apps = [];
+// 絞り込んだ結果と、その中で選んでいる位置
+let results = [];
+let selected = 0;
 
 const input = document.getElementById('query');
 const list = document.getElementById('results');
@@ -11,18 +14,53 @@ function filterApps(query) {
 }
 
 function render() {
-  const results = filterApps(input.value);
   list.replaceChildren(
-    ...results.map((app) => {
+    ...results.map((app, i) => {
       const li = document.createElement('li');
       li.textContent = app.name;
+      if (i === selected) li.classList.add('selected');
       return li;
     })
   );
+  list.children[selected]?.scrollIntoView({ block: 'nearest' });
 }
 
-input.addEventListener('input', render);
+// 入力が変わったら絞り直して、先頭を選ぶ
+function update() {
+  results = filterApps(input.value);
+  selected = 0;
+  render();
+}
+
+function launchSelected() {
+  const app = results[selected];
+  if (!app) return;
+  window.api.launchApp(app.path);
+  input.value = '';
+  update();
+}
+
+input.addEventListener('input', update);
+
+input.addEventListener('keydown', (event) => {
+  // 日本語入力の変換中の Enter や矢印は、変換のために使うので無視する
+  if (event.isComposing) return;
+
+  if (event.key === 'ArrowDown') {
+    event.preventDefault();
+    if (results.length > 0) selected = (selected + 1) % results.length;
+    render();
+  } else if (event.key === 'ArrowUp') {
+    event.preventDefault();
+    if (results.length > 0) selected = (selected - 1 + results.length) % results.length;
+    render();
+  } else if (event.key === 'Enter') {
+    event.preventDefault();
+    launchSelected();
+  }
+});
+
 window.api.getApps().then((result) => {
   apps = result;
-  render();
+  update();
 });
