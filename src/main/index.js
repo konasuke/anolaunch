@@ -1,6 +1,7 @@
 const { app, BrowserWindow, globalShortcut, ipcMain, shell } = require('electron');
 const path = require('path');
 const { getApps } = require('./apps');
+const { withIcons } = require('./icons');
 
 const HOTKEY = 'CommandOrControl+Shift+Space';
 
@@ -46,7 +47,7 @@ function toggleWindow() {
 }
 
 app.whenReady().then(() => {
-  ipcMain.handle('get-apps', () => getApps());
+  ipcMain.handle('get-apps', () => withIcons(getApps()));
 
   // 一覧にあるアプリだけ起動する（画面側から任意のパスを渡されても開かない）
   ipcMain.handle('launch-app', async (event, appPath) => {

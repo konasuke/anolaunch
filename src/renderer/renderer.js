@@ -17,7 +17,11 @@ function render() {
   list.replaceChildren(
     ...results.map((app, i) => {
       const li = document.createElement('li');
-      li.textContent = app.name;
+      const icon = document.createElement('img');
+      if (app.icon) icon.src = app.icon;
+      const name = document.createElement('span');
+      name.textContent = app.name;
+      li.append(icon, name);
       if (i === selected) li.classList.add('selected');
       return li;
     })
