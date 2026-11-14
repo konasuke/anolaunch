@@ -46,4 +46,19 @@ npm start
 
 インストーラーは、それぞれの OS で `npm run dist`（Windows）/ `npm run dist:mac`（Mac）。
 
+## リリース
+
+タグを push すると、GitHub Actions（[release.yml](.github/workflows/release.yml)）が Mac と Windows のインストーラーを作って、Releases に下書きとして置きます。
+
+```bash
+npm version 1.1.0
+git push --follow-tags
+```
+
+1. `npm version <版>` で、`package.json` の版を上げて、コミットと `v<版>` のタグを作る（タグの版と `package.json` の版は、そろえる）
+2. `git push --follow-tags` で、コミットとタグを push する。ここでビルドが始まる
+3. Actions が終わったら、[Releases](https://github.com/konasuke/anolaunch/releases) の下書きに 2 つのインストーラーが付いているか確かめて、「公開」を押す
+
+版の上げ方は、修正だけなら `1.0.1`、機能を足したなら `1.1.0`。
+
 くわしい決まりごとは [CLAUDE.md](CLAUDE.md)、これからやることは [_doc/TODO.md](_doc/TODO.md) を見てください。
