@@ -56,6 +56,7 @@ app.whenReady().then(() => {
     const error = await shell.openPath(appPath);
     if (error) console.error(`起動できませんでした: ${appPath}: ${error}`);
   });
+
   createWindow();
 
   if (!globalShortcut.register(HOTKEY, toggleWindow)) {
