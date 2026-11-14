@@ -3,7 +3,7 @@
 module.exports = {
   'search.placeholder': 'アプリ名を入力',
   'search.settings': '設定',
-  'tray.tooltip': 'Launcher',
+  'tray.tooltip': 'Anolaunch',
   'tray.show': '表示',
   'tray.settings': '設定…',
   'tray.quit': '終了',

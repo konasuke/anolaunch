@@ -1,7 +1,8 @@
 {
-  "name": "launcher",
+  "name": "anolaunch",
+  "productName": "Anolaunch",
   "version": "1.0.0",
-  "description": "",
+  "description": "Anolaunch: a hotkey launcher for Windows and macOS",
   "main": "src/main/index.js",
   "scripts": {
     "start": "electron .",

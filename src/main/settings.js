@@ -44,14 +44,41 @@ function sanitize(raw) {
   return result;
 }
 
-function load() {
-  let saved = {};
-  try {
-    saved = sanitize(JSON.parse(fs.readFileSync(settingsFile(), 'utf8')));
-  } catch {
-    // ファイルが無い、壊れているときは、初期値で始める
+// 設定をファイルに保存する
+function writeSettings(settings) {
+  const file = settingsFile();
+  fs.mkdirSync(path.dirname(file), { recursive: true });
+  // 一時ファイルに書いてから入れ替える（書き込みの途中で止まっても、元のファイルが壊れない）
+  const tmp = `${file}.tmp`;
+  fs.writeFileSync(tmp, JSON.stringify(settings, null, 2));
+  fs.renameSync(tmp, file);
+}
+
+// アプリの名前を変えたとき（launcher → Anolaunch）、設定の保存先のフォルダも変わる。
+// 新しい保存先に設定が無いときだけ、前の名前のフォルダにあった設定を、引き継ぐ
+const OLD_FOLDER_NAMES = ['launcher'];
+
+function readOldSettings() {
+  for (const name of OLD_FOLDER_NAMES) {
+    try {
+      const old = sanitize(JSON.parse(fs.readFileSync(path.join(app.getPath('appData'), name, 'settings.json'), 'utf8')));
+      if (Object.keys(old).length > 0) return old;
+    } catch {
+      // 前の設定が無いときは、何もしない
+    }
   }
-  return { ...defaults(), ...saved };
+  return {};
+}
+
+function load() {
+  try {
+    return { ...defaults(), ...sanitize(JSON.parse(fs.readFileSync(settingsFile(), 'utf8'))) };
+  } catch {
+    // 設定のファイルが無い、壊れているとき
+  }
+  const settings = { ...defaults(), ...readOldSettings() };
+  writeSettings(settings); // 引き継いだ設定を、新しい保存先に残す（初期値だけのときも、作っておく）
+  return settings;
 }
 
 let current = null;
@@ -64,12 +91,7 @@ function getSettings() {
 // 設定を更新して、ファイルに保存する。保存した後の設定を返す
 function updateSettings(partial) {
   current = { ...getSettings(), ...sanitize(partial) };
-  const file = settingsFile();
-  fs.mkdirSync(path.dirname(file), { recursive: true });
-  // 一時ファイルに書いてから入れ替える（書き込みの途中で止まっても、元のファイルが壊れない）
-  const tmp = `${file}.tmp`;
-  fs.writeFileSync(tmp, JSON.stringify(current, null, 2));
-  fs.renameSync(tmp, file);
+  writeSettings(current);
   return { ...current };
 }
 

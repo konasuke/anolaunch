@@ -14,7 +14,7 @@ const cache = new Map();
 // 変換の途中ファイルを置く一時フォルダ。初めて使うときに作り、終了時に消す
 let tmpDir = null;
 function getTmpDir() {
-  if (!tmpDir) tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'launcher-icons-'));
+  if (!tmpDir) tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'anolaunch-icons-'));
   return tmpDir;
 }
 
