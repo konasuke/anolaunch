@@ -2,6 +2,7 @@
 // 種類（kind.*）は、英語の名前のまま使う（Raycast のように、Application・Game と入力して絞り込めるため）
 module.exports = {
   'search.placeholder': 'アプリ名を入力',
+  'search.settings': '設定',
   'tray.tooltip': 'Launcher',
   'tray.show': '表示',
   'tray.settings': '設定…',

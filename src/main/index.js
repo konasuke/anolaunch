@@ -97,6 +97,9 @@ app.whenReady().then(() => {
   ipcMain.handle('get-default-settings', () => getDefaults());
   // 設定画面が、キーの表示と入力の変換を、どの OS に合わせるかを知るための情報
   ipcMain.handle('get-app-info', () => ({ platform: process.platform }));
+  // ランチャーの歯車ボタン・ショートカットから、設定画面を開く
+  ipcMain.on('open-settings', () => openSettingsWindow());
+
   // 設定画面がホットキーの入力を始めた・やめたことを受け取る（入力中だけ、キーをメイン側で受け取る）
   ipcMain.on('hotkey-recording', (event, recording) => setHotkeyRecording(Boolean(recording)));
   ipcMain.handle('set-settings', (event, partial) => {

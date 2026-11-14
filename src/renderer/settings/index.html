@@ -20,7 +20,17 @@
     #hotkey.recording { border-color: #4f8cf0; color: #9bbcf7; }
     #reset { color: #aaa; padding: 6px 8px; background: transparent; border-color: transparent; }
     #reset:hover { color: #fff; }
-    input[type=checkbox] { width: 18px; height: 18px; accent-color: #4f8cf0; cursor: pointer; }
+    /* トグルスイッチ（チェックボックスを、見た目だけ、スイッチにしたもの。クリック・キーボード操作は、チェックボックスのまま） */
+    input[type=checkbox] {
+      appearance: none; position: relative; flex-shrink: 0; width: 40px; height: 22px; margin: 0; border-radius: 11px;
+      background: #555; cursor: pointer; transition: background 0.15s;
+    }
+    input[type=checkbox]::after {
+      content: ''; position: absolute; top: 2px; left: 2px; width: 18px; height: 18px; border-radius: 50%;
+      background: #fff; transition: transform 0.15s;
+    }
+    input[type=checkbox]:checked { background: #4f8cf0; }
+    input[type=checkbox]:checked::after { transform: translateX(18px); }
     .error { font-size: 12px; color: #f08a8a; text-align: right; max-width: 260px; }
     .error:empty { display: none; }
   </style>
@@ -45,7 +55,7 @@
   <div class="row">
     <label class="label" for="autostart" id="autostart-label"></label>
     <div class="control">
-      <input id="autostart" type="checkbox">
+      <input id="autostart" type="checkbox" role="switch">
     </div>
   </div>
   <script src="settings.js"></script>

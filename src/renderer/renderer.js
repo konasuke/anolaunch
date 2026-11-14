@@ -99,10 +99,39 @@ input.addEventListener('keydown', (event) => {
   }
 });
 
+// 歯車ボタン（設定画面を開く）。ショートカットは Windows が Ctrl+,、Mac が Cmd+,
+const settingsButton = document.getElementById('settings');
+let shortcutHint = 'Ctrl+,';
+
+function updateSettingsTooltip() {
+  const label = `${t('search.settings')} (${shortcutHint})`;
+  settingsButton.dataset.tooltip = label; // 見た目の吹き出し（CSS）に使う
+  settingsButton.setAttribute('aria-label', label);
+}
+
+window.api.getAppInfo().then((info) => {
+  shortcutHint = info.platform === 'darwin' ? '⌘,' : 'Ctrl+,';
+  updateSettingsTooltip();
+});
+
+// クリックしても、入力欄からフォーカスを外さない
+settingsButton.addEventListener('mousedown', (event) => event.preventDefault());
+settingsButton.addEventListener('click', () => window.api.openSettings());
+
+// Ctrl+,（Mac は Cmd+,）で、設定画面を開く
+window.addEventListener('keydown', (event) => {
+  if (event.isComposing || !(event.ctrlKey || event.metaKey)) return;
+  if (event.code === 'Comma' || event.key === ',') {
+    event.preventDefault();
+    window.api.openSettings();
+  }
+});
+
 // 文言を受け取って、文言を使う部分を作り直す
 function applyMessages(loadedMessages) {
   messages = loadedMessages;
   input.placeholder = t('search.placeholder');
+  updateSettingsTooltip();
   render();
 }
 

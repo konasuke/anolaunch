@@ -7,6 +7,7 @@ contextBridge.exposeInMainWorld('api', {
   getSettings: () => ipcRenderer.invoke('get-settings'),
   getDefaultSettings: () => ipcRenderer.invoke('get-default-settings'),
   getAppInfo: () => ipcRenderer.invoke('get-app-info'),
+  openSettings: () => ipcRenderer.send('open-settings'),
   // ホットキーの入力中かどうかを、メインに伝える。入力中に押されたキーは、メインから届く
   setHotkeyRecording: (recording) => ipcRenderer.send('hotkey-recording', recording),
   onHotkeyKey: (callback) => ipcRenderer.on('hotkey-key', (event, data) => callback(data)),
