@@ -7,6 +7,8 @@ contextBridge.exposeInMainWorld('api', {
   getIcon: (appPath) => ipcRenderer.invoke('get-icon', appPath),
   // キャッシュ（取ってあるアイコンと、ストアアプリの一覧）を削除する。終わるまで待てる
   clearCache: () => ipcRenderer.invoke('clear-cache'),
+  // アプリの一覧が変わったとき（再スキャンで、追加・削除が見つかったとき）に呼ばれる関数を登録する
+  onAppsChanged: (callback) => ipcRenderer.on('apps-changed', () => callback()),
   // キャッシュが削除されたときに呼ばれる関数を登録する（一覧とアイコンを取り直すため）
   onCacheCleared: (callback) => ipcRenderer.on('cache-cleared', () => callback()),
   getMessages: () => ipcRenderer.invoke('get-messages'),

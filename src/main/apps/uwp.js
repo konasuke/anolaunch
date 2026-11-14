@@ -1,3 +1,4 @@
+const { app } = require('electron');
 const { execFile } = require('child_process');
 const { promisify } = require('util');
 const fs = require('fs');
@@ -52,10 +53,35 @@ function logoOf(installDir, appId) {
   }
 }
 
-// 読み込んだストアアプリ。getApps は同期で呼ばれるので、先に一度だけ読み込んで持っておく
+// 読み込んだストアアプリ。getApps は同期で呼ばれるので、先に読み込んで持っておく
 let cache = [];
-let loading = null;
 
+// ファイルにも残す（次の起動のとき、PowerShell を待たずに、すぐ使えるように）
+const FILE_VERSION = 1;
+
+function cacheFile() {
+  return path.join(app.getPath('userData'), 'uwp-apps.json');
+}
+
+function readCacheFile() {
+  try {
+    const saved = JSON.parse(fs.readFileSync(cacheFile(), 'utf8'));
+    return saved.version === FILE_VERSION && Array.isArray(saved.apps) ? saved.apps : null;
+  } catch {
+    return null;
+  }
+}
+
+function writeCacheFile(apps) {
+  try {
+    fs.mkdirSync(path.dirname(cacheFile()), { recursive: true });
+    fs.writeFileSync(cacheFile(), JSON.stringify({ version: FILE_VERSION, apps }));
+  } catch {
+    // 保存できなくても、困らない（次の起動で、また読み込む）
+  }
+}
+
+// PowerShell で、今のストアアプリを取り直す。成功したら、メモリとファイルを入れ替える
 async function loadUwp() {
   if (process.platform !== 'win32') return;
   try {
@@ -70,21 +96,26 @@ async function loadUwp() {
       const dir = installDirs.get(family);
       return { name: Name, path: PREFIX + AppID, kind: KIND.STORE, iconFile: dir ? logoOf(dir, appId) : null };
     });
+    writeCacheFile(cache);
   } catch (error) {
     console.error('ストアアプリを読み込めませんでした:', error.message);
   }
 }
 
-// 読み込みを始める（一度だけ）。終わるまで待ちたいときは、返ってくる Promise を待つ
+// 起動時に呼ぶ。前に保存した一覧があれば、それをすぐ使う（待たない）。無ければ（初めての起動）、PowerShell で読み込む
+// 最新の状態への更新は、reloadUwp を、別に呼ぶ
 function preloadUwp() {
-  if (!loading) loading = loadUwp();
-  return loading;
+  const saved = process.platform === 'win32' ? readCacheFile() : null;
+  if (saved) {
+    cache = saved;
+    return Promise.resolve();
+  }
+  return loadUwp();
 }
 
-// 読み込み直す（キャッシュの削除用）。終わるまで、前の一覧を使い続ける
+// PowerShell で読み込み直す（再スキャンや、キャッシュの削除のとき）。終わるまで、前の一覧を使い続ける
 function reloadUwp() {
-  loading = loadUwp();
-  return loading;
+  return loadUwp();
 }
 
 function getUwpApps() {

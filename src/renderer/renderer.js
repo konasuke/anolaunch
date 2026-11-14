@@ -186,5 +186,6 @@ function loadApps() {
 
 loadApps();
 
-// キャッシュが削除されたら、一覧を取り直す（アイコンも、表示のときに取り直される）
+// キャッシュが削除されたとき、アプリの追加・削除が見つかったときは、一覧を取り直す（アイコンも、表示のときに取り直される）
 window.api.onCacheCleared(loadApps);
+window.api.onAppsChanged(loadApps);

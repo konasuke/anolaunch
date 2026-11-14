@@ -22,19 +22,59 @@ function genericExeIcon(tmpDir) {
 }
 
 // getFileIcon が汎用アイコンしか返さないファイル（Antigravity など）は、
-// PowerShell（System.Drawing）でファイルに埋め込まれたアイコンを取り出す
-async function iconFromExtract(filePath) {
-  const script =
-    'Add-Type -AssemblyName System.Drawing;' +
-    '$i=[System.Drawing.Icon]::ExtractAssociatedIcon($env:LAUNCHER_ICON_PATH);' +
-    '$ms=New-Object System.IO.MemoryStream;' +
-    '$i.ToBitmap().Save($ms,[System.Drawing.Imaging.ImageFormat]::Png);' +
-    '[Convert]::ToBase64String($ms.ToArray())';
-  const { stdout } = await execFileAsync('powershell', ['-NoProfile', '-Command', script], {
-    env: { ...process.env, LAUNCHER_ICON_PATH: filePath },
+// PowerShell（System.Drawing）でファイルに埋め込まれたアイコンを取り出す。
+// PowerShell は起動が重い（1回ごとに数百ミリ秒）ので、短い間に来た依頼を、1回の起動にまとめて渡す
+const BATCH_DELAY_MS = 100; // 依頼が来てから、まとめて実行するまで待つ時間
+const BATCH_SIZE = 20; // 1回の PowerShell に渡す数の上限（環境変数に入れる長さの制限があるため）
+
+// 渡された複数のパスから、アイコン（PNG を base64 にしたもの）を取り出す。結果は、渡した順の配列（取れなければ空文字）
+const EXTRACT_SCRIPT =
+  '[Console]::OutputEncoding=[System.Text.Encoding]::UTF8;' +
+  'Add-Type -AssemblyName System.Drawing;' +
+  // パスは、「|」で区切って渡す（Windows のファイル名には使えない文字なので、パスの中に混ざらない）
+  '$paths=$env:LAUNCHER_ICON_PATHS -split "\\|";' +
+  '$out=@();' +
+  'foreach ($p in $paths) {' +
+  '  $b64="";' +
+  '  try {' +
+  '    $i=[System.Drawing.Icon]::ExtractAssociatedIcon($p);' +
+  '    $ms=New-Object System.IO.MemoryStream;' +
+  '    $i.ToBitmap().Save($ms,[System.Drawing.Imaging.ImageFormat]::Png);' +
+  '    $b64=[Convert]::ToBase64String($ms.ToArray())' +
+  '  } catch {}' +
+  '  $out+=$b64' +
+  '};' +
+  'ConvertTo-Json -Compress -InputObject @($out)';
+
+let pending = []; // { filePath, resolve }
+let batchTimer = null;
+
+async function runBatch(batch) {
+  try {
+    const { stdout } = await execFileAsync('powershell', ['-NoProfile', '-Command', EXTRACT_SCRIPT], {
+      encoding: 'utf8',
+      env: { ...process.env, LAUNCHER_ICON_PATHS: batch.map((b) => b.filePath).join('|') },
+    });
+    const results = JSON.parse(stdout);
+    const list = Array.isArray(results) ? results : [results];
+    batch.forEach((b, i) => b.resolve(list[i] ? `data:image/png;base64,${list[i]}` : null));
+  } catch {
+    batch.forEach((b) => b.resolve(null)); // 取れなければ、アイコンなし
+  }
+}
+
+function flushBatches() {
+  batchTimer = null;
+  const all = pending;
+  pending = [];
+  for (let i = 0; i < all.length; i += BATCH_SIZE) runBatch(all.slice(i, i + BATCH_SIZE));
+}
+
+function iconFromExtract(filePath) {
+  return new Promise((resolve) => {
+    pending.push({ filePath, resolve });
+    if (!batchTimer) batchTimer = setTimeout(flushBatches, BATCH_DELAY_MS);
   });
-  const base64 = stdout.trim();
-  return base64 ? `data:image/png;base64,${base64}` : null;
 }
 
 // ショートカットから、アイコンを取り出す元のファイルを決める

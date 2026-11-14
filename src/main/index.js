@@ -1,7 +1,6 @@
 const { app, BrowserWindow, globalShortcut, ipcMain, screen } = require('electron');
 const path = require('path');
-const { getApps } = require('./apps');
-const { preloadUwp, reloadUwp } = require('./apps/uwp');
+const { initAppList, getAppList, findApp, refreshApps } = require('./app-list');
 const { getIcon, clearIconCache, cleanupIcons, pruneIconCache } = require('./icons');
 const { createTray, refreshTray } = require('./tray');
 const { launch } = require('./launch');
@@ -63,6 +62,8 @@ function showWindow() {
   win.show();
   win.focus();
   win.webContents.send('window-shown');
+  // 窓を出したときに、裏で、一覧を最新にする（アプリの追加・削除に、再起動なしで対応するため。30 秒に 1 回まで）
+  refreshApps();
 }
 
 function toggleWindow() {
@@ -122,33 +123,31 @@ app.whenReady().then(() => {
     return { settings: after };
   });
 
-  // Windows のストアアプリは、読み込みに時間がかかる（約2秒）ので、起動時に始めておき、一覧を返す前に待つ
-  // 一覧は、アイコン抜きで、すぐ返す。アイコンは、画面が表示する行の分だけ、あとから get-icon で取りに来る
-  // （画面から来る要求は、ここで作った一覧にあるアプリだけ受け付ける）
-  const uwpReady = preloadUwp();
-  let knownApps = new Map();
-  ipcMain.handle('get-apps', async () => {
-    await uwpReady;
-    const apps = getApps();
-    knownApps = new Map(apps.map((a) => [a.path, a]));
-    return apps;
-  });
+  // アプリの一覧は、アイコン抜きで、すぐ返す。アイコンは、画面が表示する行の分だけ、あとから get-icon で取りに来る
+  // （画面から来る要求は、一覧にあるアプリだけ受け付ける）
+  // 再スキャンで一覧が変わったら、ランチャーの窓に知らせて、取り直させる
+  initAppList({ onListChange: () => win.webContents.send('apps-changed') });
+  ipcMain.handle('get-apps', () => getAppList());
   ipcMain.handle('get-icon', (event, appPath) => {
-    const found = knownApps.get(appPath);
+    const found = findApp(appPath);
     return found ? getIcon(found) : null;
   });
 
-  // キャッシュを削除する：取ってあるアイコンを捨て、ストアアプリの一覧も読み込み直す。
+  // 起動の少しあとに、一覧を最新にする（保存してあったストアアプリの一覧は、古いかもしれない）。
+  // ログイン直後の、ほかのアプリの起動と取り合わないよう、すぐにはやらない
+  setTimeout(() => refreshApps({ force: true }), 5000);
+
+  // キャッシュを削除する：取ってあるアイコンを（ファイルも）捨て、一覧も取り直す。
   // 終わったら、ランチャーの窓に伝えて、一覧とアイコンを取り直させる
   ipcMain.handle('clear-cache', async () => {
     clearIconCache();
-    await reloadUwp();
+    await refreshApps({ force: true });
     win.webContents.send('cache-cleared');
   });
 
   // 一覧にあるアプリだけ起動する（画面側から任意のパスを渡されても開かない）
   ipcMain.handle('launch-app', async (event, appPath) => {
-    if (!getApps().some((a) => a.path === appPath)) return;
+    if (!findApp(appPath)) return;
     win.hide();
     const error = await launch(appPath);
     if (error) console.error(`起動できませんでした: ${appPath}: ${error}`);
