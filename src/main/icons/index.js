@@ -1,9 +1,10 @@
 const fs = require('fs');
 const os = require('os');
 const path = require('path');
-const { getMacIcon } = require('./mac');
-const { getWindowsIcon } = require('./windows');
+const { getMacIcon, macIconKey } = require('./mac');
+const { getWindowsIcon, windowsIconKey } = require('./windows');
 const { iconFromImageFile } = require('./file');
+const { readCachedIcon, writeCachedIcon, clearDiskCache, pruneDiskCache } = require('./cache');
 
 const CONCURRENCY = 8; // 同時に動かす変換の数（別プロセスを呼ぶ OS があるので、増やしすぎない）
 
@@ -47,11 +48,24 @@ function limit(task) {
   });
 }
 
-async function fetchIcon(app) {
-  if (app.iconFile) return iconFromImageFile(app.iconFile); // アイコンのファイルが分かっているもの（Steam のゲーム）
-  if (/^(steam|shell):/.test(app.path)) return null;
+// OS に聞いて取る（時間がかかる）。取れたら、ファイルにも残す
+async function fetchFromOS(app) {
+  const isWindows = process.platform === 'win32';
+  const key = isWindows ? windowsIconKey(app.path) : macIconKey(app.path);
+  if (key) {
+    const saved = readCachedIcon(key); // 前に取ったものが、ファイルに残っていれば、それを使う
+    if (saved) return saved;
+  }
   const dir = getTmpDir();
-  return process.platform === 'win32' ? getWindowsIcon(app.path, dir) : getMacIcon(app.path, dir);
+  const icon = await (isWindows ? getWindowsIcon(app.path, dir) : getMacIcon(app.path, dir));
+  if (icon && key) writeCachedIcon(key, icon);
+  return icon;
+}
+
+async function fetchIcon(app) {
+  if (app.iconFile) return iconFromImageFile(app.iconFile); // アイコンのファイルが分かっているもの（Steam のゲーム、ストアアプリ）。読むだけなので、残さない
+  if (/^(steam|shell):/.test(app.path)) return null;
+  return fetchFromOS(app);
 }
 
 // アプリ1件のアイコン（data URL。取れなければ null）を返す。画面に出すときに、必要な分だけ呼ぶ
@@ -60,9 +74,10 @@ function getIcon(app) {
   return cache.get(app.path);
 }
 
-// 取ってあるアイコンを全部捨てる（次に表示するとき、取り直す）
+// 取ってあるアイコンを全部捨てる（メモリも、ファイルも）。次に表示するとき、OS に聞いて取り直す
 function clearIconCache() {
   cache.clear();
+  clearDiskCache();
 }
 
-module.exports = { getIcon, clearIconCache, cleanupIcons };
+module.exports = { getIcon, clearIconCache, cleanupIcons, pruneIconCache: pruneDiskCache };

@@ -4,6 +4,7 @@ const { promisify } = require('util');
 const fs = require('fs');
 const path = require('path');
 const { ICON_SIZE } = require('./constants');
+const { statKey } = require('./cache');
 
 const execFileAsync = promisify(execFile);
 
@@ -36,9 +37,9 @@ async function iconFromExtract(filePath) {
   return base64 ? `data:image/png;base64,${base64}` : null;
 }
 
-// ショートカット（.lnk）の指す先のアイコンを、OS に聞いて取る
-// （.lnk 自体のアイコンだと、ショートカットの矢印が付くことがあるため）
-async function iconFromShortcut(appPath, tmpDir) {
+// ショートカットから、アイコンを取り出す元のファイルを決める
+// （.lnk 自体のアイコンだと、ショートカットの矢印が付くことがあるため、指す先のファイルにする）
+function iconSourceOf(appPath) {
   let target = appPath;
   if (appPath.toLowerCase().endsWith('.url')) {
     // .url（Steam のゲームなど）は、IconFile= に、アイコンのファイルが書かれている
@@ -54,6 +55,23 @@ async function iconFromShortcut(appPath, tmpDir) {
       // .lnk として読めなければ、そのまま渡す
     }
   }
+  return target;
+}
+
+// ファイルに残すアイコンの鍵。ショートカットと、アイコンを取り出す元のファイルの、大きさと更新日時
+// （どちらかが変わると、鍵が変わり、取り直される。ファイルが無いときは null で、残さない）
+function windowsIconKey(appPath) {
+  try {
+    const parts = [statKey(appPath), statKey(iconSourceOf(appPath))];
+    return parts.every(Boolean) ? parts.join('|') : null;
+  } catch {
+    return null;
+  }
+}
+
+// ショートカット（.lnk）の指す先のアイコンを、OS に聞いて取る
+async function iconFromShortcut(appPath, tmpDir) {
+  const target = iconSourceOf(appPath);
   // .ico ファイルが指定されている場合、getFileIcon は .ico 全般の汎用アイコンを返してしまうので、
   // 中身の画像を直接読む
   if (target.toLowerCase().endsWith('.ico')) {
@@ -71,4 +89,4 @@ async function getWindowsIcon(appPath, tmpDir) {
   return iconFromShortcut(appPath, tmpDir).catch(() => null);
 }
 
-module.exports = { getWindowsIcon };
+module.exports = { getWindowsIcon, windowsIconKey };

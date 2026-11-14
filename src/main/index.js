@@ -2,7 +2,7 @@ const { app, BrowserWindow, globalShortcut, ipcMain, screen } = require('electro
 const path = require('path');
 const { getApps } = require('./apps');
 const { preloadUwp, reloadUwp } = require('./apps/uwp');
-const { getIcon, clearIconCache, cleanupIcons } = require('./icons');
+const { getIcon, clearIconCache, cleanupIcons, pruneIconCache } = require('./icons');
 const { createTray, refreshTray } = require('./tray');
 const { launch } = require('./launch');
 const { getSettings, updateSettings, getDefaults, isValidHotkey } = require('./settings');
@@ -161,6 +161,9 @@ app.whenReady().then(() => {
   });
 
   createWindow();
+
+  // 長く使われていないアイコンのファイルを、起動の少しあとに掃除する（起動の邪魔をしないため）
+  setTimeout(pruneIconCache, 30 * 1000);
 
   if (!registerHotkey(settings.hotkey, toggleWindow)) {
     console.error(`ホットキー ${settings.hotkey} を登録できませんでした`);

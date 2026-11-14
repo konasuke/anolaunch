@@ -3,8 +3,15 @@ const { promisify } = require('util');
 const fs = require('fs');
 const path = require('path');
 const { ICON_SIZE } = require('./constants');
+const { statKey } = require('./cache');
 
 const execFileAsync = promisify(execFile);
+
+// ファイルに残すアイコンの鍵。.app の Info.plist の、大きさと更新日時
+// （アプリが更新されると、Info.plist が書き換わるので、鍵が変わり、取り直される。無いときは null で、残さない）
+function macIconKey(appPath) {
+  return statKey(path.join(appPath, 'Contents', 'Info.plist'));
+}
 
 // アプリ自身が持つアイコンファイル（.icns）を、標準の sips で PNG にして読む
 // （Electron の nativeImage は .icns を読めず、getFileIcon は汎用のアイコンしか返さなかった）
@@ -38,4 +45,4 @@ async function getMacIcon(appPath, tmpDir) {
   return iconFromWorkspace(appPath, tmpDir).catch(() => null);
 }
 
-module.exports = { getMacIcon };
+module.exports = { getMacIcon, macIconKey };
