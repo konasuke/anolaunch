@@ -60,7 +60,7 @@ async function getIcon(appPath, tmpDir) {
 
 // アプリの一覧に、アイコンを付けて返す
 async function withIcons(apps) {
-  const tmpDir = await fs.promises.mkdtemp(path.join(os.tmpdir(), 'lancher-icons-'));
+  const tmpDir = await fs.promises.mkdtemp(path.join(os.tmpdir(), 'launcher-icons-'));
   const result = new Array(apps.length);
   let next = 0;
   // CONCURRENCY 個ずつ、順に取る

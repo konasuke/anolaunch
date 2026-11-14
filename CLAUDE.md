@@ -1,4 +1,4 @@
-# Lancher
+# Launcher
 
 Raycast のような、ホットキーで窓が出るランチャー（Electron）。真似て作って学ぶのが目的。設計のメモは Vault の `idea/ランチャー.md`。
 
