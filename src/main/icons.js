@@ -1,4 +1,4 @@
-const { app } = require('electron');
+const { app, shell, nativeImage } = require('electron');
 const { execFile } = require('child_process');
 const { promisify } = require('util');
 const fs = require('fs');
@@ -38,10 +38,57 @@ async function iconFromWorkspace(appPath, tmpDir) {
   return `data:image/png;base64,${png.toString('base64')}`;
 }
 
-// Windows など：OS が返すアイコン
-async function iconFromOS(appPath) {
-  const image = await app.getFileIcon(appPath);
-  return image.isEmpty() ? null : image.toDataURL();
+// Windows：ショートカット（.lnk）の指す先のアイコンを、OS に聞いて取る
+// （.lnk 自体のアイコンだと、ショートカットの矢印が付くことがあるため）
+async function iconFromOS(appPath, tmpDir) {
+  let target = appPath;
+  try {
+    const link = shell.readShortcutLink(appPath);
+    // アイコンが別に指定されていればそれ、なければ起動先のファイル
+    target = (link.icon && fs.existsSync(link.icon) && link.icon) || link.target || appPath;
+  } catch {
+    // .lnk として読めなければ、そのまま渡す
+  }
+  // .ico ファイルが指定されている場合、getFileIcon は .ico 全般の汎用アイコンを返してしまうので、
+  // 中身の画像を直接読む
+  if (target.toLowerCase().endsWith('.ico')) {
+    const ico = nativeImage.createFromPath(target);
+    if (!ico.isEmpty()) return ico.resize({ height: ICON_SIZE }).toDataURL();
+  }
+  const image = await app.getFileIcon(target, { size: 'large' });
+  const icon = image.isEmpty() ? null : image.toDataURL();
+  // 取れたのが汎用の .exe アイコンなら、アプリ固有のアイコンが取れていない
+  if (icon && icon === (await genericExeIcon(tmpDir))) return iconFromExtract(target);
+  return icon;
+}
+
+// Windows：汎用の .exe アイコン。中身が空の .exe に対して OS が返すもの（一度だけ作る）
+let genericExePromise = null;
+function genericExeIcon(tmpDir) {
+  if (!genericExePromise) {
+    genericExePromise = (async () => {
+      const file = path.join(tmpDir, 'generic.exe');
+      await fs.promises.writeFile(file, '');
+      return (await app.getFileIcon(file, { size: 'large' })).toDataURL();
+    })().catch(() => null); // 作れなければ、汎用アイコンの判定をしないだけ
+  }
+  return genericExePromise;
+}
+
+// Windows：getFileIcon が汎用アイコンしか返さないファイル（Antigravity など）は、
+// PowerShell（System.Drawing）でファイルに埋め込まれたアイコンを取り出す
+async function iconFromExtract(filePath) {
+  const script =
+    'Add-Type -AssemblyName System.Drawing;' +
+    '$i=[System.Drawing.Icon]::ExtractAssociatedIcon($env:LAUNCHER_ICON_PATH);' +
+    '$ms=New-Object System.IO.MemoryStream;' +
+    '$i.ToBitmap().Save($ms,[System.Drawing.Imaging.ImageFormat]::Png);' +
+    '[Convert]::ToBase64String($ms.ToArray())';
+  const { stdout } = await execFileAsync('powershell', ['-NoProfile', '-Command', script], {
+    env: { ...process.env, LAUNCHER_ICON_PATH: filePath },
+  });
+  const base64 = stdout.trim();
+  return base64 ? `data:image/png;base64,${base64}` : null;
 }
 
 async function getIcon(appPath, tmpDir) {
@@ -52,7 +99,7 @@ async function getIcon(appPath, tmpDir) {
     icon = await iconFromBundle(appPath, tmpDir).catch(() => null);
     if (!icon) icon = await iconFromWorkspace(appPath, tmpDir).catch(() => null);
   } else {
-    icon = await iconFromOS(appPath).catch(() => null);
+    icon = await iconFromOS(appPath, tmpDir).catch(() => null);
   }
   cache.set(appPath, icon);
   return icon;
