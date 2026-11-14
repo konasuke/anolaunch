@@ -154,6 +154,11 @@ window.api.onHotkeyKey((event) => {
   changeHotkey(accelerator);
 });
 
+// Esc で設定画面を閉じる（ホットキーの入力中の Esc は、メインから届き、入力をやめるだけ）
+window.addEventListener('keydown', (event) => {
+  if (event.key === 'Escape' && !recording) window.close();
+});
+
 hotkeyButton.addEventListener('blur', () => {
   if (recording) stopRecording();
 });
