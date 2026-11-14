@@ -19,4 +19,9 @@ module.exports = {
   'settings.hotkey.needModifier': 'Combine with Ctrl, Alt, Shift, etc.',
   'settings.hotkey.failed': 'Could not register this hotkey. Another app may be using it.',
   'settings.hotkey.reset': 'Reset to default',
-  'settings.autostart': 'Launch at login',};
+  'settings.autostart': 'Launch at login',
+  'settings.cache': 'Cache',
+  'settings.cache.clear': 'Clear cache',
+  'settings.cache.clearing': 'Clearing…',
+  'settings.cache.cleared': 'Cleared',
+  'settings.cache.note': 'Reloads the app list and icons',};

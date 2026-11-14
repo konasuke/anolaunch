@@ -20,4 +20,9 @@ module.exports = {
   'settings.hotkey.needModifier': 'Ctrl・Alt・Shift などと組み合わせてください',
   'settings.hotkey.failed': 'このキーは登録できませんでした。ほかのアプリが使っているかもしれません',
   'settings.hotkey.reset': '初期値に戻す',
-  'settings.autostart': 'PC 起動時に自動で起動する',};
+  'settings.autostart': 'PC 起動時に自動で起動する',
+  'settings.cache': 'キャッシュ',
+  'settings.cache.clear': 'キャッシュを削除',
+  'settings.cache.clearing': '削除中…',
+  'settings.cache.cleared': '削除しました',
+  'settings.cache.note': 'アプリの一覧とアイコンを、取り直します',};

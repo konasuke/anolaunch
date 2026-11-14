@@ -19,7 +19,7 @@ function openSettingsWindow() {
   }
   win = new BrowserWindow({
     width: 480,
-    height: 260,
+    height: 340,
     useContentSize: true,
     title: t('settings.title'),
     resizable: false,

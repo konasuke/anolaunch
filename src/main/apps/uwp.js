@@ -81,8 +81,14 @@ function preloadUwp() {
   return loading;
 }
 
+// 読み込み直す（キャッシュの削除用）。終わるまで、前の一覧を使い続ける
+function reloadUwp() {
+  loading = loadUwp();
+  return loading;
+}
+
 function getUwpApps() {
   return cache;
 }
 
-module.exports = { PREFIX, preloadUwp, getUwpApps };
+module.exports = { PREFIX, preloadUwp, reloadUwp, getUwpApps };

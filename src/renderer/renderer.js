@@ -20,12 +20,44 @@ function filterApps(query) {
   return apps.filter((app) => app.name.toLowerCase().includes(q) || kindLabel(app).toLowerCase().includes(q));
 }
 
+// --- アイコン（見えている行の分だけ、メインから取る） ---
+
+// 今表示している行の、アプリ → 画像の要素（取れたアイコンを、すぐ入れるため）
+let iconImages = new Map();
+
+// 一覧の中で、見える位置に来た行のアイコンを取る（まだ取っていないものだけ）
+const iconObserver = new IntersectionObserver(
+  (entries) => {
+    for (const entry of entries) {
+      if (!entry.isIntersecting) continue;
+      iconObserver.unobserve(entry.target);
+      loadIcon(entry.target.app);
+    }
+  },
+  { root: list, rootMargin: '40px' } // 見える範囲の少し先まで、先に取る
+);
+
+function loadIcon(app) {
+  if (app.icon !== undefined || app.loadingIcon) return; // 取れた（アイコンなしも含む）、または取っている最中
+  app.loadingIcon = true;
+  window.api.getIcon(app.path).then((icon) => {
+    app.icon = icon;
+    app.loadingIcon = false;
+    const img = iconImages.get(app);
+    if (img && icon) img.src = icon;
+  });
+}
+
 function render() {
+  iconObserver.disconnect();
+  iconImages = new Map();
   list.replaceChildren(
     ...results.map((app, i) => {
       const li = document.createElement('li');
+      li.app = app;
       const icon = document.createElement('img');
       if (app.icon) icon.src = app.icon;
+      iconImages.set(app, icon);
       const name = document.createElement('span');
       name.textContent = app.name;
       // 行の右端に、種類（Application、Game など）を出す
@@ -41,6 +73,9 @@ function render() {
       return li;
     })
   );
+  for (const li of list.children) {
+    if (li.app.icon === undefined) iconObserver.observe(li);
+  }
   list.children[selected]?.scrollIntoView({ block: 'nearest' });
   // 中身の高さに窓を合わせる（入力欄だけのときは小さく、結果があれば大きく）
   window.api.resizeWindow(document.body.offsetHeight);
@@ -141,7 +176,15 @@ window.api.onMessagesChanged(() => window.api.getMessages().then(applyMessages))
 // 文言はすぐ受け取る（アプリの一覧は読み込みに数秒かかるので、待たない）
 window.api.getMessages().then(applyMessages);
 
-window.api.getApps().then((loadedApps) => {
-  apps = loadedApps;
-  update();
-});
+// アプリの一覧を取る（アイコンは、表示する行の分だけ、あとから取る）
+function loadApps() {
+  return window.api.getApps().then((loadedApps) => {
+    apps = loadedApps;
+    update();
+  });
+}
+
+loadApps();
+
+// キャッシュが削除されたら、一覧を取り直す（アイコンも、表示のときに取り直される）
+window.api.onCacheCleared(loadApps);

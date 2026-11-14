@@ -13,6 +13,10 @@ const languageSelect = $('language');
 const hotkeyButton = $('hotkey');
 const resetButton = $('reset');
 const autostartBox = $('autostart');
+const clearCacheButton = $('clear-cache');
+
+// キャッシュ削除ボタンの状態（ボタンの文字になる文言のキー）
+let clearCacheState = 'settings.cache.clear';
 
 let recording = false;
 
@@ -92,6 +96,10 @@ function render() {
   hotkeyButton.textContent = recording ? t('settings.hotkey.recording') : displayHotkey(settings.hotkey);
 
   autostartBox.checked = Boolean(settings.autoStart);
+
+  $('cache-label').textContent = t('settings.cache');
+  $('cache-note').textContent = t('settings.cache.note');
+  clearCacheButton.textContent = t(clearCacheState); // 削除中・削除した直後は、ボタンの文字が変わる
 }
 
 // ホットキーのエラー表示。表示するメッセージのキーを覚えておき、言語が変わったら、言い直す
@@ -136,6 +144,21 @@ const stopRecording = () => setRecording(false);
 hotkeyButton.addEventListener('click', () => {
   showHotkeyError(null);
   setRecording(true);
+});
+
+// キャッシュを削除する。終わるまでボタンを押せなくし、終わったら、2 秒だけ「削除しました」と出す
+clearCacheButton.addEventListener('click', async () => {
+  clearCacheButton.disabled = true;
+  clearCacheState = 'settings.cache.clearing';
+  render();
+  await window.api.clearCache();
+  clearCacheState = 'settings.cache.cleared';
+  render();
+  setTimeout(() => {
+    clearCacheState = 'settings.cache.clear';
+    clearCacheButton.disabled = false;
+    render();
+  }, 2000);
 });
 
 // 入力中に押されたキー（メインプロセスから届く）

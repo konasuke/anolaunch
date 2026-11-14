@@ -3,6 +3,12 @@ const { contextBridge, ipcRenderer } = require('electron');
 // 画面側（renderer.js）に渡す関数だけを公開する
 contextBridge.exposeInMainWorld('api', {
   getApps: () => ipcRenderer.invoke('get-apps'),
+  // 1件のアイコン（data URL。無ければ null）。画面に出す行の分だけ呼ぶ
+  getIcon: (appPath) => ipcRenderer.invoke('get-icon', appPath),
+  // キャッシュ（取ってあるアイコンと、ストアアプリの一覧）を削除する。終わるまで待てる
+  clearCache: () => ipcRenderer.invoke('clear-cache'),
+  // キャッシュが削除されたときに呼ばれる関数を登録する（一覧とアイコンを取り直すため）
+  onCacheCleared: (callback) => ipcRenderer.on('cache-cleared', () => callback()),
   getMessages: () => ipcRenderer.invoke('get-messages'),
   getSettings: () => ipcRenderer.invoke('get-settings'),
   getDefaultSettings: () => ipcRenderer.invoke('get-default-settings'),
