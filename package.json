@@ -4,7 +4,8 @@
   "description": "",
   "main": "src/main/index.js",
   "scripts": {
-    "start": "electron ."
+    "start": "electron .",
+    "icons": "electron tools/make-icons.js"
   },
   "keywords": [],
   "author": "",
