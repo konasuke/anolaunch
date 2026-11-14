@@ -27,7 +27,7 @@
 
 ## インストール
 
-署名はしていないため、初回だけ警告が出ます。
+[Releases](https://github.com/konasuke/anolaunch/releases) から、自分の OS 用のファイルをダウンロードします。署名はしていないため、初回だけ警告が出ます。
 
 - **Windows**：`Anolaunch-Setup-<版>.exe` を実行
 - **Mac**：`.dmg` を開いて Applications にドラッグし、初回は右クリック → 「開く」（Apple Silicon 向け）
