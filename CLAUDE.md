@@ -2,7 +2,7 @@
 
 Raycast のような、ホットキーで窓が出るランチャー（Electron）。真似て作って学ぶのが目的。設計のメモは Vault の `idea/ランチャー.md`。
 
-名前は **Anolaunch**（アノランチ。アノール＋launch）。`package.json` の `name` は `anolaunch`、`productName` は `Anolaunch`。名前を変えると、設定の保存先のフォルダ名も変わる（以前は `launcher`。`src/main/settings.js` が、前の名前のフォルダから設定を引き継ぐ）。GitHub のリポジトリ名とフォルダ名は、まだ `launcher` のまま。
+名前は **Anolaunch**（アノランチ。アノール＋launch）。`package.json` の `name` は `anolaunch`、`productName` は `Anolaunch`。名前を変えると、設定の保存先のフォルダ名も変わる（以前は `launcher`。`src/main/settings.js` が、前の名前のフォルダから設定を引き継ぐ）。GitHub のリポジトリは `konasuke/anolaunch`（以前は `launcher`。古い URL は、自動的に転送される）。PC のフォルダ名は、`anolaunch` にそろえる（以前は `launcher`）。
 
 - 言語は JavaScript。TypeScript は使わない（変換の設定が増えるため）
 - 役割ごとにファイルを分け、増えてきたら適切にフォルダも分ける。ファイルの数を減らすことを目的にしない。1つのファイルに別々の役割を詰め込まない
