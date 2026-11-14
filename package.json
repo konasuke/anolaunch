@@ -3,6 +3,7 @@
   "productName": "Anolaunch",
   "version": "1.0.0",
   "description": "Anolaunch: a hotkey launcher for Windows and macOS",
+  "repository": "konasuke/anolaunch",
   "main": "src/main/index.js",
   "scripts": {
     "start": "electron .",
