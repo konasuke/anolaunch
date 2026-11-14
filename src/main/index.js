@@ -75,6 +75,9 @@ app.on('second-instance', showWindow);
 app.whenReady().then(() => {
   if (!hasLock) return;
 
+  // Mac：常駐するので、Dock にアイコンを出さない（目印はメニューバーのトレイ）
+  if (process.platform === 'darwin') app.dock.hide();
+
   createTray({ onShow: showWindow });
 
   ipcMain.handle('get-apps', () => withIcons(getApps()));
