@@ -61,7 +61,18 @@ function toggleWindow() {
   }
 }
 
+// 二重起動を防ぐ。すでに動いているときは、あとから起動したほうがすぐ終わる
+const hasLock = app.requestSingleInstanceLock();
+if (!hasLock) app.quit();
+
+// あとから起動されたら、動いているほうの窓を出す（ホットキーの代わりに使える）
+app.on('second-instance', () => {
+  if (win && !win.isVisible()) toggleWindow();
+});
+
 app.whenReady().then(() => {
+  if (!hasLock) return;
+
   ipcMain.handle('get-apps', () => withIcons(getApps()));
 
   // 一覧にあるアプリだけ起動する（画面側から任意のパスを渡されても開かない）
