@@ -4,6 +4,7 @@ const fs = require('fs');
 const path = require('path');
 const { ICON_SIZE } = require('./constants');
 const { statKey } = require('./cache');
+const { unpacked } = require('../unpacked');
 
 const execFileAsync = promisify(execFile);
 
@@ -33,7 +34,7 @@ async function iconFromBundle(appPath, tmpDir) {
 // .icns を持たないアプリ（新しい形式のアイコン）は、OS に聞いて PNG にしてもらう
 async function iconFromWorkspace(appPath, tmpDir) {
   const pngPath = path.join(tmpDir, `ws-${Math.random().toString(36).slice(2)}.png`);
-  await execFileAsync('osascript', ['-l', 'JavaScript', path.join(__dirname, 'icon.jxa'), appPath, pngPath]);
+  await execFileAsync('osascript', ['-l', 'JavaScript', unpacked(path.join(__dirname, 'icon.jxa')), appPath, pngPath]);
   const png = await fs.promises.readFile(pngPath);
   return `data:image/png;base64,${png.toString('base64')}`;
 }

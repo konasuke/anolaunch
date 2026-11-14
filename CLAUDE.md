@@ -11,6 +11,7 @@ Raycast のような、ホットキーで窓が出るランチャー（Electron�
 - 画面に出す文言（入力欄の案内、トレイのメニュー、種類の名前など）は、`src/shared/messages/` の `ja.js` と `en.js` に、キーで書く。コードに文字列を直接書かない。メインでは `t('キー')`、画面側（renderer）はメインから受け取った文言を使う。キーは両方のファイルでそろえる。コードが比較に使うアプリの種類は、`src/shared/kinds.js` の `KIND`
 - 設定（言語・ホットキー・自動起動）は `src/main/settings.js` が、OS のアプリ用データフォルダの `settings.json` に保存する。項目を足すときは、`VALIDATORS` と `defaults` に足し、反映する処理は `index.js` の `set-settings` に足す。設定画面は `src/renderer/settings/`（トレイの「設定…」から開く）。画面側からは `window.api.getSettings()` / `setSettings()` で読み書きする
 - アプリのアイコン（アノール）の元の画像は `design/`。`npm run icons` で、`build/`（`.ico`・`.icns`・各サイズの PNG）と、`src/assets/`（`tray*.png`＝トレイ用、`icon.ico`＝窓のアイコン用）を作り直す（`tools/make-icons.js`）。アイコンを変えるときは、`design/anole-icon-original.webp` を差し替えて、このコマンドを実行する
+- インストーラーは `electron-builder`（設定は `package.json` の `build`）。Windows は `npm run dist`（`dist/Anolaunch-Setup-<版>.exe`。ユーザー単位の NSIS）、Mac は Mac で `npm run dist:mac`（`.dmg`）。それぞれの OS で作る。中身だけ確かめるときは `npm run pack`（`dist/win-unpacked/`）。インストール版では、ソースが `app.asar` にまとまるので、OS や別のプログラムが実際のファイルとして読むもの（窓・トレイのアイコン、`icon.jxa`）は、`asarUnpack` で書庫の外に出し、`src/main/unpacked.js` の `unpacked()` でパスを直す。署名はしていない
 - コミットメッセージは日本語で、何をしたかを1行で
 - ゲームの画面に重ねる、ゲームのメモリを読む、といった、ゲームの中に触れる機能は入れない
 

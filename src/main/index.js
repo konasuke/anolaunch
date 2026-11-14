@@ -9,6 +9,7 @@ const { registerHotkey } = require('./hotkey');
 const { applyAutoStart } = require('./autostart');
 const { openSettingsWindow, refreshSettingsWindowTitle, setHotkeyRecording } = require('./settings-window');
 const { allMessages, setLanguage } = require('../shared/messages');
+const { unpacked } = require('./unpacked');
 
 const WIDTH = 600;
 const MIN_HEIGHT = 60; // 入力欄だけのとき（画面側が測った高さで、すぐ置き換わる）
@@ -22,7 +23,7 @@ function createWindow() {
     height: MIN_HEIGHT,
     useContentSize: true,
     show: false,
-    icon: path.join(__dirname, '../assets/icon.ico'), // Alt+Tab などに出るアイコン
+    icon: unpacked(path.join(__dirname, '../assets/icon.ico')), // Alt+Tab などに出るアイコン
     frame: false,
     resizable: false,
     alwaysOnTop: true,

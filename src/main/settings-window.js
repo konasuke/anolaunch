@@ -1,9 +1,10 @@
 const { BrowserWindow } = require('electron');
 const path = require('path');
 const { t } = require('../shared/messages');
+const { unpacked } = require('./unpacked');
 
 // 窓のアイコン（タイトルバーとタスクバー）。指定しないと、Electron の標準のアイコンになる（Mac は、アプリのアイコンが使われる）
-const WINDOW_ICON = path.join(__dirname, '../assets/icon.ico');
+const WINDOW_ICON = unpacked(path.join(__dirname, '../assets/icon.ico'));
 
 let win = null;
 // ホットキーの入力中か（設定画面が知らせてくる）
