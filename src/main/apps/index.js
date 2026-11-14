@@ -1,6 +1,7 @@
 const { scanMac } = require('./mac');
 const { scanWindows } = require('./windows');
 const { scanSteam } = require('./steam');
+const { getUwpApps } = require('./uwp');
 
 function getApps() {
   const isWindows = process.platform === 'win32';
@@ -20,6 +21,14 @@ function getApps() {
   // Steam のゲームのうち、まだ一覧にないもの。スタートメニューの .url（Windows）などで出ているものは、重ねて出さない
   for (const game of games.values()) {
     if (!shown.has(game.steamId)) result.push(game);
+  }
+
+  // Windows のストアアプリ。同じ名前がすでに一覧にあるものは、重ねて出さない
+  if (isWindows) {
+    const names = new Set(result.map((a) => a.name.toLowerCase()));
+    for (const app of getUwpApps()) {
+      if (!names.has(app.name.toLowerCase())) result.push(app);
+    }
   }
 
   return result.sort((a, b) => a.name.localeCompare(b.name));

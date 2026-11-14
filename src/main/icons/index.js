@@ -15,7 +15,7 @@ async function getIcon(app, tmpDir) {
   let icon = null;
   if (app.iconFile) {
     icon = iconFromImageFile(app.iconFile); // アイコンのファイルが分かっているもの（Steam のゲーム）
-  } else if (!app.path.startsWith('steam://')) {
+  } else if (!/^(steam|shell):/.test(app.path)) {
     icon = process.platform === 'win32' ? await getWindowsIcon(app.path, tmpDir) : await getMacIcon(app.path, tmpDir);
   }
   cache.set(app.path, icon);

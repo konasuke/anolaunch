@@ -1,6 +1,7 @@
 const { app, BrowserWindow, globalShortcut, ipcMain, screen } = require('electron');
 const path = require('path');
 const { getApps } = require('./apps');
+const { preloadUwp } = require('./apps/uwp');
 const { withIcons } = require('./icons');
 const { createTray } = require('./tray');
 const { launch } = require('./launch');
@@ -80,7 +81,12 @@ app.whenReady().then(() => {
 
   createTray({ onShow: showWindow });
 
-  ipcMain.handle('get-apps', () => withIcons(getApps()));
+  // Windows のストアアプリは、読み込みに時間がかかる（約2秒）ので、起動時に始めておき、一覧を返す前に待つ
+  const uwpReady = preloadUwp();
+  ipcMain.handle('get-apps', async () => {
+    await uwpReady;
+    return withIcons(getApps());
+  });
 
   // 一覧にあるアプリだけ起動する（画面側から任意のパスを渡されても開かない）
   ipcMain.handle('launch-app', async (event, appPath) => {
