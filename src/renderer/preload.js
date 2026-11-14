@@ -4,4 +4,5 @@ const { contextBridge, ipcRenderer } = require('electron');
 contextBridge.exposeInMainWorld('api', {
   getApps: () => ipcRenderer.invoke('get-apps'),
   launchApp: (appPath) => ipcRenderer.invoke('launch-app', appPath),
+  resizeWindow: (height) => ipcRenderer.send('resize-window', height),
 });

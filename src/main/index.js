@@ -1,16 +1,21 @@
-const { app, BrowserWindow, globalShortcut, ipcMain, shell } = require('electron');
+const { app, BrowserWindow, globalShortcut, ipcMain, screen, shell } = require('electron');
 const path = require('path');
 const { getApps } = require('./apps');
 const { withIcons } = require('./icons');
 
 const HOTKEY = 'CommandOrControl+Shift+Space';
 
+const WIDTH = 600;
+const MIN_HEIGHT = 60; // 入力欄だけのとき（画面側が測った高さで、すぐ置き換わる）
+const MAX_HEIGHT = 340; // 結果が多くても、これより大きくしない
+
 let win;
 
 function createWindow() {
   win = new BrowserWindow({
-    width: 600,
-    height: 340,
+    width: WIDTH,
+    height: MIN_HEIGHT,
+    useContentSize: true,
     show: false,
     frame: false,
     resizable: false,
@@ -36,11 +41,21 @@ function createWindow() {
   });
 }
 
+// マウスのあるモニターで、横は中央、縦は上から 1/4 の位置に置く
+// （窓の上端を固定するので、結果が増えると下に伸びる）
+function positionWindow() {
+  const { workArea } = screen.getDisplayNearestPoint(screen.getCursorScreenPoint());
+  win.setPosition(
+    Math.round(workArea.x + (workArea.width - WIDTH) / 2),
+    Math.round(workArea.y + workArea.height * 0.25)
+  );
+}
+
 function toggleWindow() {
   if (win.isVisible()) {
     win.hide();
   } else {
-    win.center();
+    positionWindow();
     win.show();
     win.focus();
   }
@@ -55,6 +70,12 @@ app.whenReady().then(() => {
     win.hide();
     const error = await shell.openPath(appPath);
     if (error) console.error(`起動できませんでした: ${appPath}: ${error}`);
+  });
+
+  // 画面側が測った中身の高さに、窓の高さを合わせる
+  ipcMain.on('resize-window', (event, height) => {
+    if (!win || !Number.isFinite(height)) return;
+    win.setContentSize(WIDTH, Math.min(Math.max(Math.ceil(height), MIN_HEIGHT), MAX_HEIGHT));
   });
 
   createWindow();

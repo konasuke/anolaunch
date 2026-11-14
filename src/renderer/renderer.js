@@ -27,11 +27,13 @@ function render() {
     })
   );
   list.children[selected]?.scrollIntoView({ block: 'nearest' });
+  // 中身の高さに窓を合わせる（入力欄だけのときは小さく、結果があれば大きく）
+  window.api.resizeWindow(document.body.offsetHeight);
 }
 
-// 入力が変わったら絞り直して、先頭を選ぶ
+// 入力が変わったら絞り直して、先頭を選ぶ。入力が空のときは何も出さない
 function update() {
-  results = filterApps(input.value);
+  results = input.value.trim() === '' ? [] : filterApps(input.value);
   selected = 0;
   render();
 }
