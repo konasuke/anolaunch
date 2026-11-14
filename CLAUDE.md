@@ -65,5 +65,5 @@ Raycast のような、ホットキーで窓が出るランチャー（Electron�
   - Windows：`npm run dist` → `dist/Anolaunch-Setup-<版>.exe`（ユーザー単位の NSIS）
   - Mac：Mac で `npm run dist:mac` → `dist/Anolaunch-<版>-<arch>.dmg`（Apple Silicon なら `arm64`。Intel の Mac では動かない）
 - 中身だけ確かめるときは `npm run pack`（`dist/win-unpacked/` など）
-- 署名・公証はしていない。Mac は、他の Mac では初回に右クリックから「開く」が要る
+- 署名・公証はしていない。Mac は、ダウンロードしたものだと「壊れている」と出て開けないので、入れたあとに `xattr -cr /Applications/Anolaunch.app` で印を消してから、右クリックから「開く」で起動する（自分でビルドしたものは不要）
 - インストール版では、ソースが `app.asar` にまとまる。OS や別のプログラムが実際のファイルとして読むもの（窓・トレイのアイコン、`icon.jxa`）は、`asarUnpack` で書庫の外に出し、`src/main/unpacked.js` の `unpacked()` でパスを直す
