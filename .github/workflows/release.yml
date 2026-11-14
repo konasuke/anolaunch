@@ -9,7 +9,18 @@ permissions:
   contents: write
 
 jobs:
-  release:
+  # Mac と Windows が同時に下書きを作ると 2 つに分かれてしまうので、先に 1 つだけ作る
+  create-release:
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          gh release view "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" ||
+          gh release create "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" --draft --title "Anolaunch $GITHUB_REF_NAME" --notes ""
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  build:
+    needs: create-release
     strategy:
       matrix:
         include:
