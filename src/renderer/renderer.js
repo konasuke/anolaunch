@@ -7,10 +7,10 @@ let selected = 0;
 const input = document.getElementById('query');
 const list = document.getElementById('results');
 
-// 名前に入力が含まれるものを残す（大文字小文字は区別しない）
+// 名前か種類（Application、Game、Store App）に入力が含まれるものを残す（大文字小文字は区別しない）
 function filterApps(query) {
   const q = query.trim().toLowerCase();
-  return apps.filter((app) => app.name.toLowerCase().includes(q));
+  return apps.filter((app) => app.name.toLowerCase().includes(q) || (app.kind || '').toLowerCase().includes(q));
 }
 
 function render() {
@@ -51,6 +51,12 @@ function launchSelected() {
 }
 
 input.addEventListener('input', update);
+
+// 窓が出たら、入力欄に残っている文字を全選択する（そのまま打てば置き換わり、残したければ、そのまま使える）
+window.api.onShown(() => {
+  input.focus();
+  input.select();
+});
 
 input.addEventListener('keydown', (event) => {
   // 日本語入力の変換中の Enter や矢印は、変換のために使うので無視する

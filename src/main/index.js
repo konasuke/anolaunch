@@ -10,7 +10,7 @@ const HOTKEY = 'CommandOrControl+Shift+Space';
 
 const WIDTH = 600;
 const MIN_HEIGHT = 60; // 入力欄だけのとき（画面側が測った高さで、すぐ置き換わる）
-const MAX_HEIGHT = 340; // 結果が多くても、これより大きくしない
+const MAX_HEIGHT = 420; // 結果が多くても、これより大きくしない
 
 let win;
 
@@ -59,6 +59,7 @@ function showWindow() {
   positionWindow();
   win.show();
   win.focus();
+  win.webContents.send('window-shown');
 }
 
 function toggleWindow() {

@@ -5,4 +5,6 @@ contextBridge.exposeInMainWorld('api', {
   getApps: () => ipcRenderer.invoke('get-apps'),
   launchApp: (appPath) => ipcRenderer.invoke('launch-app', appPath),
   resizeWindow: (height) => ipcRenderer.send('resize-window', height),
+  // 窓が表示されたときに呼ばれる関数を登録する
+  onShown: (callback) => ipcRenderer.on('window-shown', () => callback()),
 });
