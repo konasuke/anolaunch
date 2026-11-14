@@ -19,4 +19,7 @@ function allMessages() {
   return { ...dictionaries.ja, ...dictionaries[language] };
 }
 
-module.exports = { setLanguage, t, allMessages };
+// 選べる言語の一覧
+const LANGUAGES = Object.keys(dictionaries);
+
+module.exports = { LANGUAGES, setLanguage, t, allMessages };

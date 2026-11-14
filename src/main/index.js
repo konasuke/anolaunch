@@ -3,9 +3,10 @@ const path = require('path');
 const { getApps } = require('./apps');
 const { preloadUwp } = require('./apps/uwp');
 const { withIcons } = require('./icons');
-const { createTray } = require('./tray');
+const { createTray, refreshTray } = require('./tray');
 const { launch } = require('./launch');
-const { allMessages } = require('../shared/messages');
+const { getSettings, updateSettings } = require('./settings');
+const { allMessages, setLanguage } = require('../shared/messages');
 
 const HOTKEY = 'CommandOrControl+Shift+Space';
 
@@ -81,10 +82,22 @@ app.whenReady().then(() => {
   // Mac：常駐するので、Dock にアイコンを出さない（目印はメニューバーのトレイ）
   if (process.platform === 'darwin') app.dock.hide();
 
+  // 保存してある設定を反映してから、トレイを作る（言語がトレイの文言に効くため）
+  setLanguage(getSettings().language);
   createTray({ onShow: showWindow });
 
   // 画面に出す文言（今の言語のもの）を、画面側に渡す
   ipcMain.handle('get-messages', () => allMessages());
+
+  // 設定の読み書き。保存したら、言語をすぐ反映する（トレイと、画面の文言を作り直す）
+  ipcMain.handle('get-settings', () => getSettings());
+  ipcMain.handle('set-settings', (event, partial) => {
+    const settings = updateSettings(partial);
+    setLanguage(settings.language);
+    refreshTray();
+    win.webContents.send('messages-changed');
+    return settings;
+  });
 
   // Windows のストアアプリは、読み込みに時間がかかる（約2秒）ので、起動時に始めておき、一覧を返す前に待つ
   const uwpReady = preloadUwp();

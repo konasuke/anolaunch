@@ -4,6 +4,10 @@ const { contextBridge, ipcRenderer } = require('electron');
 contextBridge.exposeInMainWorld('api', {
   getApps: () => ipcRenderer.invoke('get-apps'),
   getMessages: () => ipcRenderer.invoke('get-messages'),
+  getSettings: () => ipcRenderer.invoke('get-settings'),
+  setSettings: (partial) => ipcRenderer.invoke('set-settings', partial),
+  // 言語が変わって、文言が入れ替わったときに呼ばれる関数を登録する
+  onMessagesChanged: (callback) => ipcRenderer.on('messages-changed', () => callback()),
   launchApp: (appPath) => ipcRenderer.invoke('launch-app', appPath),
   resizeWindow: (height) => ipcRenderer.send('resize-window', height),
   // 窓が表示されたときに呼ばれる関数を登録する

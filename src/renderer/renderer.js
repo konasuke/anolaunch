@@ -83,10 +83,20 @@ input.addEventListener('keydown', (event) => {
   }
 });
 
-// 文言とアプリの一覧が揃ってから、画面を作る
-Promise.all([window.api.getMessages(), window.api.getApps()]).then(([loadedMessages, loadedApps]) => {
+// 文言を受け取って、文言を使う部分を作り直す
+function applyMessages(loadedMessages) {
   messages = loadedMessages;
-  apps = loadedApps;
   input.placeholder = t('search.placeholder');
+  render();
+}
+
+// 言語が変わったら、文言を受け取り直す
+window.api.onMessagesChanged(() => window.api.getMessages().then(applyMessages));
+
+// 文言はすぐ受け取る（アプリの一覧は読み込みに数秒かかるので、待たない）
+window.api.getMessages().then(applyMessages);
+
+window.api.getApps().then((loadedApps) => {
+  apps = loadedApps;
   update();
 });
