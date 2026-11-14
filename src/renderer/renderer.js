@@ -34,6 +34,10 @@ function render() {
       kind.textContent = kindLabel(app);
       li.append(icon, name, kind);
       if (i === selected) li.classList.add('selected');
+      // マウス：動かすと、その行を選び、クリックすると起動する（クリックしても、入力欄からフォーカスを外さない）
+      li.addEventListener('mousemove', () => selectRow(i));
+      li.addEventListener('mousedown', (event) => event.preventDefault());
+      li.addEventListener('click', () => launchApp(app));
       return li;
     })
   );
@@ -49,12 +53,24 @@ function update() {
   render();
 }
 
-function launchSelected() {
-  const app = results[selected];
-  if (!app) return;
+// マウスで指した行を選ぶ。一覧は作り直さず、選択の見た目だけ変える
+// （mouseenter ではなく mousemove にして、キーで一覧がスクロールしたとき、動いていないマウスの下の行に、選択が移らないようにする）
+function selectRow(index) {
+  if (index === selected) return;
+  list.children[selected]?.classList.remove('selected');
+  selected = index;
+  list.children[selected]?.classList.add('selected');
+}
+
+function launchApp(app) {
   window.api.launchApp(app.path);
   input.value = '';
   update();
+}
+
+function launchSelected() {
+  const app = results[selected];
+  if (app) launchApp(app);
 }
 
 input.addEventListener('input', update);
