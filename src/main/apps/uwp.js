@@ -2,6 +2,7 @@ const { execFile } = require('child_process');
 const { promisify } = require('util');
 const fs = require('fs');
 const path = require('path');
+const { KIND } = require('../../shared/kinds');
 
 const execFileAsync = promisify(execFile);
 
@@ -67,7 +68,7 @@ async function loadUwp() {
     cache = (data.apps || []).map(({ Name, AppID }) => {
       const [family, appId] = AppID.split('!');
       const dir = installDirs.get(family);
-      return { name: Name, path: PREFIX + AppID, kind: 'Store App', iconFile: dir ? logoOf(dir, appId) : null };
+      return { name: Name, path: PREFIX + AppID, kind: KIND.STORE, iconFile: dir ? logoOf(dir, appId) : null };
     });
   } catch (error) {
     console.error('ストアアプリを読み込めませんでした:', error.message);

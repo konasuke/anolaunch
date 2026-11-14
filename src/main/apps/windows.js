@@ -1,6 +1,7 @@
 const { shell } = require('electron');
 const fs = require('fs');
 const path = require('path');
+const { KIND } = require('../../shared/kinds');
 
 // Windows：スタートメニューのショートカット（.lnk）が置かれるフォルダ
 const DIRS = [
@@ -58,12 +59,12 @@ function scanWindows() {
     // Web のページへのリンクは、アプリではないので除く（steam:// など、アプリを開くものだけ残す）
     if (file.toLowerCase().endsWith('.url') && /^https?:/i.test(readUrl(file))) continue;
     if (found.has(name)) continue;
-    const app = { name, path: file, kind: 'Application' };
+    const app = { name, path: file, kind: KIND.APP };
     // Steam のゲームの .url は、Steam から集めたものとの重なりを除くために、番号を持たせる
     const steamId = file.toLowerCase().endsWith('.url') && readUrl(file).match(/^steam:\/\/rungameid\/(\d+)/i)?.[1];
     if (steamId) {
       app.steamId = steamId;
-      app.kind = 'Game';
+      app.kind = KIND.GAME;
     }
     found.set(name, app);
   }

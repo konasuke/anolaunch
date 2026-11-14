@@ -2,6 +2,7 @@ const { execFileSync } = require('child_process');
 const fs = require('fs');
 const os = require('os');
 const path = require('path');
+const { KIND } = require('../../shared/kinds');
 
 // ゲームではないもの（Steam が一緒に入れる部品）
 const IGNORE = /^(Steamworks Common Redistributables|Steam Linux Runtime.*|Proton.*)$/;
@@ -77,7 +78,7 @@ function scanSteam() {
         found.set(appId, {
           name,
           path: `steam://rungameid/${appId}`,
-          kind: 'Game',
+          kind: KIND.GAME,
           steamId: appId,
           iconFile: findIcon(steamDir, appId),
         });

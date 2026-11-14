@@ -1,6 +1,7 @@
 const fs = require('fs');
 const os = require('os');
 const path = require('path');
+const { KIND } = require('../../shared/kinds');
 
 // Mac：.app が置かれるフォルダ
 const DIRS = [
@@ -35,7 +36,7 @@ function scanMac() {
       if (!entry.endsWith('.app')) continue;
       const name = entry.slice(0, -'.app'.length);
       if (found.has(name)) continue;
-      const app = { name, path: path.join(dir, entry), kind: 'Application' };
+      const app = { name, path: path.join(dir, entry), kind: KIND.APP };
       // Steam のショートカットは、Steam から集めたゲームとの重なりを直すために、番号を持たせる
       const steamId = steamIdOf(app.path);
       if (steamId) app.steamId = steamId;

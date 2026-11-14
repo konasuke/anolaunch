@@ -4,13 +4,20 @@ let apps = [];
 let results = [];
 let selected = 0;
 
+// 画面に出す文言（メインプロセスから受け取る。言語はメイン側で決まる）
+let messages = {};
+const t = (key) => messages[key] ?? key;
+
 const input = document.getElementById('query');
 const list = document.getElementById('results');
 
-// 名前か種類（Application、Game、Store App）に入力が含まれるものを残す（大文字小文字は区別しない）
+// アプリの種類の、画面に出す名前（Application、Game、Store App など）
+const kindLabel = (app) => (app.kind ? t(`kind.${app.kind}`) : '');
+
+// 名前か種類の名前に入力が含まれるものを残す（大文字小文字は区別しない）
 function filterApps(query) {
   const q = query.trim().toLowerCase();
-  return apps.filter((app) => app.name.toLowerCase().includes(q) || (app.kind || '').toLowerCase().includes(q));
+  return apps.filter((app) => app.name.toLowerCase().includes(q) || kindLabel(app).toLowerCase().includes(q));
 }
 
 function render() {
@@ -24,7 +31,7 @@ function render() {
       // 行の右端に、種類（Application、Game など）を出す
       const kind = document.createElement('span');
       kind.className = 'kind';
-      kind.textContent = app.kind || '';
+      kind.textContent = kindLabel(app);
       li.append(icon, name, kind);
       if (i === selected) li.classList.add('selected');
       return li;
@@ -76,7 +83,10 @@ input.addEventListener('keydown', (event) => {
   }
 });
 
-window.api.getApps().then((result) => {
-  apps = result;
+// 文言とアプリの一覧が揃ってから、画面を作る
+Promise.all([window.api.getMessages(), window.api.getApps()]).then(([loadedMessages, loadedApps]) => {
+  messages = loadedMessages;
+  apps = loadedApps;
+  input.placeholder = t('search.placeholder');
   update();
 });

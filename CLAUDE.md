@@ -6,6 +6,7 @@ Raycast のような、ホットキーで窓が出るランチャー（Electron�
 - 役割ごとにファイルを分け、増えてきたら適切にフォルダも分ける。ファイルの数を減らすことを目的にしない。1つのファイルに別々の役割を詰め込まない
 - 対象は Mac と Windows。OS ごとに違う処理（アプリ一覧、アイコンの取得）は、`src/main/apps/`・`src/main/icons/` の中で `mac.js` / `windows.js` に分け、`index.js` が `process.platform` で選ぶ。Mac・Windows とも実装済み（Windows はスタートメニューの `.lnk` を読む）
 - Windows の動作確認は、WSL ではなく Windows 側（PowerShell）で行う。WSL で動かすと Linux 版になり、Windows 用の処理を試せない
+- 画面に出す文言（入力欄の案内、トレイのメニュー、種類の名前など）は、`src/shared/messages/` の `ja.js` と `en.js` に、キーで書く。コードに文字列を直接書かない。メインでは `t('キー')`、画面側（renderer）はメインから受け取った文言を使う。キーは両方のファイルでそろえる。コードが比較に使うアプリの種類は、`src/shared/kinds.js` の `KIND`
 - コミットメッセージは日本語で、何をしたかを1行で
 - ゲームの画面に重ねる、ゲームのメモリを読む、といった、ゲームの中に触れる機能は入れない
 
