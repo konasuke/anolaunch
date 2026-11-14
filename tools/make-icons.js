@@ -2,6 +2,7 @@
 // 元の画像（design/anole-icon-original.webp）から、次のファイルを書き出す
 //   build/icon.png、build/icons/<サイズ>.png ：Windows・Linux 用（端まで描いたアイコン）
 //   build/icon.ico                          ：Windows 用
+//   src/assets/icon.ico                     ：窓のアイコン（同じもの。アプリの中から読む）
 //   build/icon-mac.png、build/icon.icns     ：Mac 用（周りに余白を足したアイコン）
 //   src/assets/tray.png、tray@2x.png        ：トレイ用（トカゲだけ、背景が透明）
 const { app, BrowserWindow } = require('electron');
@@ -44,7 +45,10 @@ app.whenReady().then(async () => {
   for (const [size, png] of Object.entries(full)) write(path.join(ROOT, 'build', 'icons', `${size}.png`), png);
   write(path.join(ROOT, 'build', 'icon.png'), full[1024]);
   write(path.join(ROOT, 'build', 'icon-mac.png'), mac[1024]);
-  write(path.join(ROOT, 'build', 'icon.ico'), buildIco(Object.fromEntries([16, 24, 32, 48, 64, 128, 256].map((s) => [s, full[s]]))));
+  const ico = buildIco(Object.fromEntries([16, 24, 32, 48, 64, 128, 256].map((s) => [s, full[s]])));
+  write(path.join(ROOT, 'build', 'icon.ico'), ico);
+  // 窓のアイコン（タイトルバー・タスクバー）。アプリの中から読むので、src の中にも置く
+  write(path.join(ROOT, 'src', 'assets', 'icon.ico'), ico);
   write(path.join(ROOT, 'build', 'icon.icns'), buildIcns(mac));
   // トレイ：16px（標準）と 32px（高解像度の画面用。@2x）
   write(path.join(ROOT, 'src', 'assets', 'tray.png'), tray[16]);

@@ -22,6 +22,7 @@ function createWindow() {
     height: MIN_HEIGHT,
     useContentSize: true,
     show: false,
+    icon: path.join(__dirname, '../assets/icon.ico'), // Alt+Tab などに出るアイコン
     frame: false,
     resizable: false,
     alwaysOnTop: true,
