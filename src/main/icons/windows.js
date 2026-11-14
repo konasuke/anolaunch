@@ -40,12 +40,19 @@ async function iconFromExtract(filePath) {
 // （.lnk 自体のアイコンだと、ショートカットの矢印が付くことがあるため）
 async function iconFromShortcut(appPath, tmpDir) {
   let target = appPath;
-  try {
-    const link = shell.readShortcutLink(appPath);
-    // アイコンが別に指定されていればそれ、なければ起動先のファイル
-    target = (link.icon && fs.existsSync(link.icon) && link.icon) || link.target || appPath;
-  } catch {
-    // .lnk として読めなければ、そのまま渡す
+  if (appPath.toLowerCase().endsWith('.url')) {
+    // .url（Steam のゲームなど）は、IconFile= に、アイコンのファイルが書かれている
+    const match = fs.readFileSync(appPath, 'utf8').match(/^IconFile=(.+)$/m);
+    const iconFile = match ? match[1].trim() : '';
+    if (iconFile && fs.existsSync(iconFile)) target = iconFile;
+  } else {
+    try {
+      const link = shell.readShortcutLink(appPath);
+      // アイコンが別に指定されていればそれ、なければ起動先のファイル
+      target = (link.icon && fs.existsSync(link.icon) && link.icon) || link.target || appPath;
+    } catch {
+      // .lnk として読めなければ、そのまま渡す
+    }
   }
   // .ico ファイルが指定されている場合、getFileIcon は .ico 全般の汎用アイコンを返してしまうので、
   // 中身の画像を直接読む

@@ -1,8 +1,9 @@
-const { app, BrowserWindow, globalShortcut, ipcMain, screen, shell } = require('electron');
+const { app, BrowserWindow, globalShortcut, ipcMain, screen } = require('electron');
 const path = require('path');
 const { getApps } = require('./apps');
 const { withIcons } = require('./icons');
 const { createTray } = require('./tray');
+const { launch } = require('./launch');
 
 const HOTKEY = 'CommandOrControl+Shift+Space';
 
@@ -82,7 +83,7 @@ app.whenReady().then(() => {
   ipcMain.handle('launch-app', async (event, appPath) => {
     if (!getApps().some((a) => a.path === appPath)) return;
     win.hide();
-    const error = await shell.openPath(appPath);
+    const error = await launch(appPath);
     if (error) console.error(`起動できませんでした: ${appPath}: ${error}`);
   });
 
