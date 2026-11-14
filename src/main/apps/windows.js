@@ -1,3 +1,4 @@
+const { shell } = require('electron');
 const fs = require('fs');
 const path = require('path');
 
@@ -35,6 +36,17 @@ function collectShortcuts(dir, out) {
   }
 }
 
+// ショートカットの指す先が無い（アンインストール後にショートカットだけ残った）ものは、起動できないので除く
+function isBroken(file) {
+  if (!file.toLowerCase().endsWith('.lnk')) return false;
+  try {
+    const { target } = shell.readShortcutLink(file);
+    return Boolean(target) && !fs.existsSync(target);
+  } catch {
+    return false; // 読めないものは、除かずに残す
+  }
+}
+
 function scanWindows() {
   const files = [];
   for (const dir of DIRS) collectShortcuts(dir, files);
@@ -42,7 +54,7 @@ function scanWindows() {
   const found = new Map();
   for (const file of files) {
     const name = path.basename(file, path.extname(file));
-    if (IGNORE.test(name)) continue;
+    if (IGNORE.test(name) || isBroken(file)) continue;
     // Web のページへのリンクは、アプリではないので除く（steam:// など、アプリを開くものだけ残す）
     if (file.toLowerCase().endsWith('.url') && /^https?:/i.test(readUrl(file))) continue;
     if (found.has(name)) continue;
