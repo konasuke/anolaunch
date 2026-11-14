@@ -5,10 +5,11 @@ const { preloadUwp } = require('./apps/uwp');
 const { withIcons } = require('./icons');
 const { createTray, refreshTray } = require('./tray');
 const { launch } = require('./launch');
-const { getSettings, updateSettings } = require('./settings');
+const { getSettings, updateSettings, getDefaults, isValidHotkey } = require('./settings');
+const { registerHotkey } = require('./hotkey');
+const { applyAutoStart } = require('./autostart');
+const { openSettingsWindow, refreshSettingsWindowTitle, setHotkeyRecording } = require('./settings-window');
 const { allMessages, setLanguage } = require('../shared/messages');
-
-const HOTKEY = 'CommandOrControl+Shift+Space';
 
 const WIDTH = 600;
 const MIN_HEIGHT = 60; // 入力欄だけのとき（画面側が測った高さで、すぐ置き換わる）
@@ -83,20 +84,39 @@ app.whenReady().then(() => {
   if (process.platform === 'darwin') app.dock.hide();
 
   // 保存してある設定を反映してから、トレイを作る（言語がトレイの文言に効くため）
-  setLanguage(getSettings().language);
-  createTray({ onShow: showWindow });
+  const settings = getSettings();
+  setLanguage(settings.language);
+  createTray({ onShow: showWindow, onSettings: openSettingsWindow });
+  applyAutoStart(settings.autoStart);
 
   // 画面に出す文言（今の言語のもの）を、画面側に渡す
   ipcMain.handle('get-messages', () => allMessages());
 
-  // 設定の読み書き。保存したら、言語をすぐ反映する（トレイと、画面の文言を作り直す）
+  // 設定の読み書き。保存したら、すぐ反映する
   ipcMain.handle('get-settings', () => getSettings());
+  ipcMain.handle('get-default-settings', () => getDefaults());
+  // 設定画面が、キーの表示と入力の変換を、どの OS に合わせるかを知るための情報
+  ipcMain.handle('get-app-info', () => ({ platform: process.platform }));
+  // 設定画面がホットキーの入力を始めた・やめたことを受け取る（入力中だけ、キーをメイン側で受け取る）
+  ipcMain.on('hotkey-recording', (event, recording) => setHotkeyRecording(Boolean(recording)));
   ipcMain.handle('set-settings', (event, partial) => {
-    const settings = updateSettings(partial);
-    setLanguage(settings.language);
-    refreshTray();
-    win.webContents.send('messages-changed');
-    return settings;
+    const before = getSettings();
+    // ホットキーは、先に登録を試す。登録できなければ、何も保存せずに、失敗を返す
+    if (partial && partial.hotkey !== undefined && partial.hotkey !== before.hotkey) {
+      if (!isValidHotkey(partial.hotkey) || !registerHotkey(partial.hotkey, toggleWindow)) {
+        return { settings: before, error: 'hotkey' };
+      }
+    }
+    const after = updateSettings(partial);
+    if (after.autoStart !== before.autoStart) applyAutoStart(after.autoStart);
+    if (after.language !== before.language) {
+      setLanguage(after.language);
+      refreshTray();
+      refreshSettingsWindowTitle();
+      // 開いている窓（ランチャーと設定画面）に、文言が変わったことを伝える
+      for (const w of BrowserWindow.getAllWindows()) w.webContents.send('messages-changed');
+    }
+    return { settings: after };
   });
 
   // Windows のストアアプリは、読み込みに時間がかかる（約2秒）ので、起動時に始めておき、一覧を返す前に待つ
@@ -122,8 +142,8 @@ app.whenReady().then(() => {
 
   createWindow();
 
-  if (!globalShortcut.register(HOTKEY, toggleWindow)) {
-    console.error(`ホットキー ${HOTKEY} を登録できませんでした`);
+  if (!registerHotkey(settings.hotkey, toggleWindow)) {
+    console.error(`ホットキー ${settings.hotkey} を登録できませんでした`);
   }
 });
 

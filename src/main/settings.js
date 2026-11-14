@@ -3,14 +3,31 @@ const fs = require('fs');
 const path = require('path');
 const { LANGUAGES } = require('../shared/messages');
 
+// ホットキーの書き方（Electron の Accelerator）。修飾キー（Ctrl など）＋キー、または F1〜F24 だけ
+const MODIFIERS = ['CommandOrControl', 'CmdOrCtrl', 'Command', 'Cmd', 'Control', 'Ctrl', 'Alt', 'Option', 'AltGr', 'Shift', 'Super', 'Meta'];
+
+function isValidHotkey(value) {
+  if (typeof value !== 'string') return false;
+  const parts = value.split('+');
+  const key = parts.pop();
+  if (!key || !parts.every((part) => MODIFIERS.includes(part))) return false;
+  return parts.length > 0 || /^F([1-9]|1\d|2[0-4])$/.test(key);
+}
+
 // 設定の項目。値が正しいかを確かめる関数も、ここに並べる（項目を足すときは、ここと defaults に足す）
 const VALIDATORS = {
   language: (value) => LANGUAGES.includes(value),
+  hotkey: isValidHotkey,
+  autoStart: (value) => typeof value === 'boolean',
 };
 
 // 初期値。言語は、OS の言語が日本語なら日本語、それ以外は英語
 function defaults() {
-  return { language: app.getLocale().toLowerCase().startsWith('ja') ? 'ja' : 'en' };
+  return {
+    language: app.getLocale().toLowerCase().startsWith('ja') ? 'ja' : 'en',
+    hotkey: 'CommandOrControl+Shift+Space',
+    autoStart: false,
+  };
 }
 
 // 保存先（OS ごとのアプリ用のデータフォルダの中）
@@ -56,4 +73,9 @@ function updateSettings(partial) {
   return { ...current };
 }
 
-module.exports = { getSettings, updateSettings };
+// 初期値を返す（設定画面の「初期値に戻す」用）
+function getDefaults() {
+  return defaults();
+}
+
+module.exports = { getSettings, updateSettings, getDefaults, isValidHotkey };

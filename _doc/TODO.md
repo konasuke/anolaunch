@@ -15,6 +15,6 @@
 - [x] **Steam のゲームを、Enter で起動できるか確かめる**（一覧とアイコンは確認済み。Steam の場所は `~/Library/Application Support/Steam` で合っていて、アイコンは `appcache/librarycache/<番号>/` の `.jpg` で出る。Mac は、Steam が `~/Applications` に作るショートカットアプリ（アイコンは Steam のロゴ）と同じゲームを、1行にまとめて出す。ショートカットのない Mac のゲームは、まだ見ていない）
 
 ## どちらでも
-- [ ] PC 起動時に自動で立ち上げる（`app.setLoginItemSettings({ openAtLogin: true })`）。設定の項目（`settings.js` の `VALIDATORS` と `defaults`）にして、インストール版（`app.isPackaged`）のときだけ登録する。`npm start` では、`node_modules` の中の `electron.exe` を登録してしまうため
+- [ ] PC 起動時の自動起動が、インストール版で実際に効くか確かめる（設定画面のチェックと、保存・登録の処理は、できている。`npm start` では、`node_modules` の中の `electron.exe` を登録してしまうため、インストール版（`app.isPackaged`）のときだけ登録する作りで、開発中は効かない）
+- [ ] 設定画面に、ほかの項目を足すか決める（窓の位置、一覧に出す種類のオン・オフ、追加で読むフォルダなど）
 - [ ] インストーラー／`.app` にして、`npm start` なしで使えるようにする（`electron-builder` など。Windows 用は Windows で、Mac 用は Mac で作る）。まだ急がない。決めたこと：ポータブル版は作らず、Windows は管理者権限が要らないユーザー単位のインストーラー（NSIS）にする。設定の保存先のフォルダ名が変わらないよう、アプリの名前（`name`・`productName`）は、インストーラー化の前に決める
-- [ ] 設定画面を作る（言語の切り替えなど。設定の保存と、言語を変えたときの反映は、できている）
