@@ -1,0 +1,45 @@
+# Anolaunch
+
+ホットキーで窓が出る、Raycast のようなランチャーです（Electron 製、Mac / Windows 対応）。
+
+`Ctrl/Cmd+Shift+Space` で窓を出し、アプリ名を打って Enter で起動します。
+
+## 機能
+
+- アプリを自動で集めて検索（Mac の `.app`、Windows のスタートメニューとストアアプリ、Steam のゲーム）
+- トレイ（メニューバー）から、窓の表示・設定・終了
+- 設定：言語（日本語 / English）、ホットキー、PC 起動時の自動起動
+
+## 使い方
+
+- ホットキーで窓を出す（初期値は `Ctrl+Shift+Space`、Mac は `Cmd+Shift+Space`）
+- アプリ名を打つと絞り込まれる。`↑` `↓` で選び、`Enter` で起動
+- `Esc` か、窓の外をクリックすると閉じる
+- 設定はトレイ（メニューバー）のアイコン → 「設定…」から開く
+
+### 設定の初期値
+
+| 項目 | 初期値 |
+| --- | --- |
+| 言語 | OS の言語が日本語なら日本語、それ以外は English |
+| ホットキー | `Ctrl/Cmd+Shift+Space` |
+| PC 起動時の自動起動 | オン（インストール版だけで効く） |
+
+## インストール
+
+署名はしていないため、初回だけ警告が出ます。
+
+- **Windows**：`Anolaunch-Setup-<版>.exe` を実行
+- **Mac**：`.dmg` を開いて Applications にドラッグし、初回は右クリック → 「開く」（Apple Silicon 向け）
+
+## 開発
+
+```bash
+git pull
+npm install
+npm start
+```
+
+インストーラーは、それぞれの OS で `npm run dist`（Windows）/ `npm run dist:mac`（Mac）。
+
+くわしい決まりごとは [CLAUDE.md](CLAUDE.md)、これからやることは [_doc/TODO.md](_doc/TODO.md) を見てください。
