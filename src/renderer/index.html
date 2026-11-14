@@ -2,13 +2,14 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; img-src data:">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:">
   <title>Anolaunch</title>
   <style>
     /* 高さは中身で決まる。窓の高さは renderer.js が測ってメインプロセスに伝える */
     html, body { margin: 0; background: #1e1e1e; color: #fff; font-family: system-ui, sans-serif; }
     body { padding: 16px; box-sizing: border-box; }
     .search { display: flex; align-items: center; gap: 8px; }
+    .logo { width: 32px; height: 32px; flex-shrink: 0; border-radius: 6px; }
     input {
       display: block; flex: 1; min-width: 0; font-size: 24px; color: #fff; background: transparent;
       border: none; outline: none; margin: 0; padding: 0;
@@ -39,6 +40,7 @@
 </head>
 <body>
   <div class="search">
+    <img class="logo" src="../assets/logo.png" alt="" draggable="false">
     <input id="query" type="text" autofocus>
     <!-- 歯車のアイコン（Feather Icons、MIT）。クリックで設定画面を開く -->
     <button id="settings" type="button">

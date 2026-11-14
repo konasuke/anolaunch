@@ -4,6 +4,7 @@
 //   build/icon.ico                          ：Windows 用
 //   src/assets/icon.ico                     ：窓のアイコン（同じもの。アプリの中から読む）
 //   build/icon-mac.png、build/icon.icns     ：Mac 用（周りに余白を足したアイコン）
+//   src/assets/logo.png                     ：入力欄の左端に出すロゴ
 //   src/assets/tray.png、tray@2x.png        ：トレイ用（トカゲだけ、背景が透明）
 const { app, BrowserWindow } = require('electron');
 const fs = require('fs');
@@ -49,6 +50,8 @@ app.whenReady().then(async () => {
   write(path.join(ROOT, 'build', 'icon.ico'), ico);
   // 窓のアイコン（タイトルバー・タスクバー）。アプリの中から読むので、src の中にも置く
   write(path.join(ROOT, 'src', 'assets', 'icon.ico'), ico);
+  // 入力欄の左端に出すロゴ（32px で表示するので、2 倍の 64px）
+  write(path.join(ROOT, 'src', 'assets', 'logo.png'), full[64]);
   write(path.join(ROOT, 'build', 'icon.icns'), buildIcns(mac));
   // トレイ：16px（標準）と 32px（高解像度の画面用。@2x）
   write(path.join(ROOT, 'src', 'assets', 'tray.png'), tray[16]);
