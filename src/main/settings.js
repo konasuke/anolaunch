@@ -26,7 +26,7 @@ function defaults() {
   return {
     language: app.getLocale().toLowerCase().startsWith('ja') ? 'ja' : 'en',
     hotkey: 'CommandOrControl+Shift+Space',
-    autoStart: false,
+    autoStart: true, // PC 起動時に、自動で起動する（インストール版だけで効く。設定画面で、オフにできる）
   };
 }
 
