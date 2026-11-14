@@ -77,6 +77,7 @@ function scanSteam() {
         found.set(appId, {
           name,
           path: `steam://rungameid/${appId}`,
+          kind: 'Game',
           steamId: appId,
           iconFile: findIcon(steamDir, appId),
         });

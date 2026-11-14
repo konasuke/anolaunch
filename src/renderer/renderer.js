@@ -21,7 +21,11 @@ function render() {
       if (app.icon) icon.src = app.icon;
       const name = document.createElement('span');
       name.textContent = app.name;
-      li.append(icon, name);
+      // 行の右端に、種類（Application、Game など）を出す
+      const kind = document.createElement('span');
+      kind.className = 'kind';
+      kind.textContent = app.kind || '';
+      li.append(icon, name, kind);
       if (i === selected) li.classList.add('selected');
       return li;
     })

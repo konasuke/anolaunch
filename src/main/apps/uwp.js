@@ -67,7 +67,7 @@ async function loadUwp() {
     cache = (data.apps || []).map(({ Name, AppID }) => {
       const [family, appId] = AppID.split('!');
       const dir = installDirs.get(family);
-      return { name: Name, path: PREFIX + AppID, iconFile: dir ? logoOf(dir, appId) : null };
+      return { name: Name, path: PREFIX + AppID, kind: 'Store App', iconFile: dir ? logoOf(dir, appId) : null };
     });
   } catch (error) {
     console.error('ストアアプリを読み込めませんでした:', error.message);
