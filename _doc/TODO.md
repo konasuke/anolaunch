@@ -10,12 +10,12 @@
 - [ ] ストアアプリ（UWP）を一覧に出す（スタートメニューに `.lnk` がないので、別の方法が要る）
 
 ## Mac でやること
-- [ ] `npm start` で起動し、一覧とアイコンが出るか確かめる（Windows 対応で `src/main/apps/`・`src/main/icons/` を Mac 用と Windows 用に分けたあと、Mac では動かしていない）
+- [x] `npm start` で起動し、一覧とアイコンが出るか確かめる（Windows 対応で `src/main/apps/`・`src/main/icons/` を Mac 用と Windows 用に分けたあと、Mac では動かしていない）
 - [ ] メニューバーにトレイのアイコンが出るか確かめる（青い虫眼鏡。色付きのままで見えるか）
 - [ ] 窓の高さが入力に合わせて変わるか、位置（画面の上から 1/4）が合っているか確かめる
-- [ ] Dock にアイコンが出ないようにする（`app.dock.hide()`）
+- [x] Dock にアイコンが出ないようにする（`app.dock.hide()`）
 - [ ] ホットキー `Cmd+Shift+Space` が、他のアプリと重ならないか確かめる
-- [ ] **Steam のゲームが一覧に出るか、Enter で起動できるか確かめる**（`src/main/apps/steam.js`。Mac では動かしていない。Steam の場所は `~/Library/Application Support/Steam` と仮定している（この Mac では合っていた）。ただ、この Mac にはゲームが1つも入っておらず（`appmanifest_*.acf` が0個）、一覧に出るかは確かめられない。ゲームを1つ入れて試す。アイコンは `appcache/librarycache/<番号>/` の、40文字の名前の `.jpg`。Mac で同じ形かも確かめる）
+- [ ] **Steam のゲームを、Enter で起動できるか確かめる**（一覧とアイコンは確認済み。Steam の場所は `~/Library/Application Support/Steam` で合っていて、アイコンは `appcache/librarycache/<番号>/` の `.jpg` で出る。Mac は、Steam が `~/Applications` に作るショートカットアプリ（アイコンは Steam のロゴ）と同じゲームを、1行にまとめて出す。ショートカットのない Mac のゲームは、まだ見ていない）
 
 ## どちらでも
 - [ ] PC 起動時に自動で立ち上げる（`app.setLoginItemSettings({ openAtLogin: true })`）
