@@ -1,0 +1,16 @@
+// Mac：OS が持つアプリのアイコンを PNG にして保存する
+// 使い方：osascript -l JavaScript icon.jxa <アプリのパス> <保存先の PNG のパス>
+ObjC.import('AppKit');
+
+function run(argv) {
+  const image = $.NSWorkspace.sharedWorkspace.iconForFile(argv[0]);
+  const px = 128;
+  const rep = $.NSBitmapImageRep.alloc.initWithBitmapDataPlanesPixelsWidePixelsHighBitsPerSampleSamplesPerPixelHasAlphaIsPlanarColorSpaceNameBytesPerRowBitsPerPixel(
+    $(), px, px, 8, 4, true, false, $.NSDeviceRGBColorSpace, 0, 0);
+  $.NSGraphicsContext.saveGraphicsState;
+  $.NSGraphicsContext.setCurrentContext($.NSGraphicsContext.graphicsContextWithBitmapImageRep(rep));
+  image.drawInRectFromRectOperationFraction($.NSMakeRect(0, 0, px, px), $.NSZeroRect, $.NSCompositeSourceOver, 1.0);
+  $.NSGraphicsContext.restoreGraphicsState;
+  const png = rep.representationUsingTypeProperties($.NSBitmapImageFileTypePNG, $());
+  png.writeToFileAtomically(argv[1], true);
+}

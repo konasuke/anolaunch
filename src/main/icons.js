@@ -30,6 +30,14 @@ async function iconFromBundle(appPath, tmpDir) {
   return `data:image/png;base64,${png.toString('base64')}`;
 }
 
+// Mac：.icns を持たないアプリ（新しい形式のアイコン）は、OS に聞いて PNG にしてもらう
+async function iconFromWorkspace(appPath, tmpDir) {
+  const pngPath = path.join(tmpDir, `ws-${Math.random().toString(36).slice(2)}.png`);
+  await execFileAsync('osascript', ['-l', 'JavaScript', path.join(__dirname, 'icon.jxa'), appPath, pngPath]);
+  const png = await fs.promises.readFile(pngPath);
+  return `data:image/png;base64,${png.toString('base64')}`;
+}
+
 // Windows など：OS が返すアイコン
 async function iconFromOS(appPath) {
   const image = await app.getFileIcon(appPath);
@@ -39,11 +47,12 @@ async function iconFromOS(appPath) {
 async function getIcon(appPath, tmpDir) {
   if (cache.has(appPath)) return cache.get(appPath);
   let icon = null;
-  try {
-    // Mac で取れなかったアプリは、汎用アイコンを出すと紛らわしいので、アイコンなしにする
-    icon = process.platform === 'darwin' ? await iconFromBundle(appPath, tmpDir) : await iconFromOS(appPath);
-  } catch {
-    icon = null;
+  if (process.platform === 'darwin') {
+    // 速い方法（.icns）を先に試し、だめなら OS に聞く。どちらも取れなければ、アイコンなし
+    icon = await iconFromBundle(appPath, tmpDir).catch(() => null);
+    if (!icon) icon = await iconFromWorkspace(appPath, tmpDir).catch(() => null);
+  } else {
+    icon = await iconFromOS(appPath).catch(() => null);
   }
   cache.set(appPath, icon);
   return icon;
