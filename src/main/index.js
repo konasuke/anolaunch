@@ -35,6 +35,12 @@ function createWindow() {
     },
   });
 
+  // Mac：全画面のアプリの上にも出す（これが無いと、デスクトップのスペースに戻されてしまう）
+  if (process.platform === 'darwin') {
+    win.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true });
+    win.setAlwaysOnTop(true, 'screen-saver');
+  }
+
   win.loadFile(path.join(__dirname, '../renderer/index.html'));
 
   // 他のところをクリックしたら隠す
