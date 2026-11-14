@@ -2,6 +2,7 @@ const { app, BrowserWindow, globalShortcut, ipcMain, screen, shell } = require('
 const path = require('path');
 const { getApps } = require('./apps');
 const { withIcons } = require('./icons');
+const { createTray } = require('./tray');
 
 const HOTKEY = 'CommandOrControl+Shift+Space';
 
@@ -51,14 +52,16 @@ function positionWindow() {
   );
 }
 
+function showWindow() {
+  if (!win || win.isVisible()) return;
+  positionWindow();
+  win.show();
+  win.focus();
+}
+
 function toggleWindow() {
-  if (win.isVisible()) {
-    win.hide();
-  } else {
-    positionWindow();
-    win.show();
-    win.focus();
-  }
+  if (win.isVisible()) win.hide();
+  else showWindow();
 }
 
 // 二重起動を防ぐ。すでに動いているときは、あとから起動したほうがすぐ終わる
@@ -66,12 +69,12 @@ const hasLock = app.requestSingleInstanceLock();
 if (!hasLock) app.quit();
 
 // あとから起動されたら、動いているほうの窓を出す（ホットキーの代わりに使える）
-app.on('second-instance', () => {
-  if (win && !win.isVisible()) toggleWindow();
-});
+app.on('second-instance', showWindow);
 
 app.whenReady().then(() => {
   if (!hasLock) return;
+
+  createTray({ onShow: showWindow });
 
   ipcMain.handle('get-apps', () => withIcons(getApps()));
 
