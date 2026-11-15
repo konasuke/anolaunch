@@ -1,10 +1,10 @@
 import { BrowserWindow, ipcMain } from 'electron';
 import { allMessages, setLanguage } from '../../shared/messages';
-import { getSettings, updateSettings, getDefaults, isValidHotkey } from '../settings';
-import { registerHotkey } from '../hotkey';
-import { applyAutoStart } from '../autostart';
-import { refreshTray } from '../tray';
-import { openSettingsWindow, refreshSettingsWindowTitle, setHotkeyRecording } from '../settings-window';
+import { getSettings, updateSettings, getDefaults, isValidHotkey } from '../store/settings';
+import { registerHotkey } from '../system/hotkey';
+import { applyAutoStart } from '../system/autostart';
+import { refreshTray } from '../system/tray';
+import { openSettingsWindow, refreshSettingsWindowTitle, setHotkeyRecording } from '../windows/settings';
 import { toggleLauncher } from '../windows/launcher';
 import { INVOKE, SEND, EVENT } from '../../shared/ipc-channels';
 

@@ -1,6 +1,6 @@
 import { Tray, Menu } from 'electron';
-import { t } from '../shared/messages';
-import trayIcon from '../../resources/tray.png?asset&asarUnpack';
+import { t } from '../../shared/messages';
+import trayIcon from '../../../resources/tray.png?asset&asarUnpack';
 
 // 変数に持っておく（持たないと、あとで片付けられてアイコンが消える）
 let tray: Tray;

@@ -1,8 +1,8 @@
 import { BrowserWindow } from 'electron';
-import { t } from '../shared/messages';
-import { EVENT } from '../shared/ipc-channels';
+import { t } from '../../shared/messages';
+import { EVENT } from '../../shared/ipc-channels';
 import { PRELOAD, loadPage } from './load-page';
-import windowIcon from '../../resources/icon.ico?asset&asarUnpack';
+import windowIcon from '../../../resources/icon.ico?asset&asarUnpack';
 
 // 窓のアイコン（タイトルバーとタスクバー）。指定しないと、Electron の標準のアイコンになる（Mac は、アプリのアイコンが使われる）
 

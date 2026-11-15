@@ -5,7 +5,7 @@ Raycast のような、ホットキーで窓が出るランチャー（Electron�
 ## 名前
 
 - 名前は **Anolaunch**（アノランチ。アノール＋launch）。`package.json` の `name` は `anolaunch`、`productName` は `Anolaunch`
-- 以前の名前は `launcher`。名前を変えると設定の保存先のフォルダ名も変わるので、`src/main/settings.ts` が前の名前のフォルダ（`OLD_FOLDER_NAMES`）から設定を引き継ぐ
+- 以前の名前は `launcher`。名前を変えると設定の保存先のフォルダ名も変わるので、`src/main/store/settings.ts` が前の名前のフォルダ（`OLD_FOLDER_NAMES`）から設定を引き継ぐ
 - GitHub のリポジトリは `konasuke/anolaunch`（古い URL は自動的に転送される）。PC のフォルダ名も `anolaunch` にそろえる
 
 ## 作業を始めるとき
@@ -39,17 +39,16 @@ Raycast のような、ホットキーで窓が出るランチャー（Electron�
 - `src/main/`：メインプロセス
   - `index.ts`：起動と、各モジュールの組み立てだけ
   - `ipc/`：画面とのやり取り（IPC）の登録。機能ごとに `apps.ts`・`favorites.ts`・`settings.ts`・`window.ts`。`index.ts` の `registerIpc()` がまとめる
-  - `windows/launcher.ts`：ランチャーの窓（作る・出す・隠す・大きさを合わせる）
-  - `load-page.ts`：画面（HTML）と preload の読み込み。開発中は Vite のサーバーから、ビルド後は `out/renderer` から
-  - `hotkey.ts`・`tray.ts`・`autostart.ts`・`launch.ts`：ホットキー、トレイ、自動起動、アプリの起動
-  - `settings.ts`・`settings-window.ts`：設定の保存と、設定画面の窓
-  - `favorites.ts`：お気に入りのアプリ（path の配列）を、`favorites.json` に保存する。設定とは別（設定の「初期値に戻す」で消えないように）
+  - `windows/`：窓。`launcher.ts`（ランチャーの窓：作る・出す・隠す・大きさを合わせる）、`settings.ts`（設定画面の窓）、`load-page.ts`（画面（HTML）と preload の読み込み。開発中は Vite のサーバーから、ビルド後は `out/renderer` から）
+  - `system/`：OS とのやり取り。`hotkey.ts`・`tray.ts`・`autostart.ts`（ホットキー、トレイ、自動起動）
+  - `store/`：保存するデータ。`settings.ts`（`settings.json`）、`favorites.ts`（お気に入りのアプリの path の配列を `favorites.json` に保存する。設定とは別で、設定の「初期値に戻す」で消えないように）
+  - `launch.ts`：アプリの起動
   - `app-list.ts`：アプリ一覧の取得と保持
   - `apps/`：アプリ一覧を集める処理（下の「OS ごとの処理」）
   - `icons/`：アプリのアイコンを取り出す処理と、そのキャッシュ（`cache.ts`）
 - `src/preload/index.ts`：画面に `window.api` を渡す（画面とメインをつなぐ、唯一の入り口）
 - `src/renderer/`：画面（React）。入口の HTML が2つ
-  - `index.html` → `src/launcher/`：ランチャー（`Launcher.tsx`、`ResultRow.tsx`、`StarButton.tsx` など。絞り込みは `search.ts`）
+  - `launcher/index.html` → `src/launcher/`：ランチャー（`Launcher.tsx`、`ResultRow.tsx`、`StarButton.tsx` など。絞り込みは `search.ts`）
   - `settings/index.html` → `src/settings/`：設定画面（`Settings.tsx` と、項目ごとの `*Row.tsx`。ホットキーの変換は `hotkey.ts`）
   - `src/hooks/`：ランチャーと設定画面で使う hooks（文言、アプリ一覧、アイコン、OS）
   - `assets/`：画面から読む画像（`logo.png`）
@@ -89,10 +88,10 @@ Raycast のような、ホットキーで窓が出るランチャー（Electron�
 
 ### 設定
 
-- 設定（言語・ホットキー・自動起動）は `src/main/settings.ts` が、OS のアプリ用データフォルダの `settings.json` に保存する。型は `src/shared/types.ts` の `Settings`
+- 設定（言語・ホットキー・自動起動）は `src/main/store/settings.ts` が、OS のアプリ用データフォルダの `settings.json` に保存する。型は `src/shared/types.ts` の `Settings`
 - 項目を足すときは、次の5か所に足す（`Settings` に足して `VALIDATORS` に足し忘れると、型のエラーになる）
   1. `shared/types.ts` の `Settings`
-  2. `settings.ts` の `VALIDATORS` と `defaults`
+  2. `store/settings.ts` の `VALIDATORS` と `defaults`
   3. `ipc/settings.ts` の `set-settings`（反映する処理）
   4. 設定画面（`src/renderer/src/settings/` に `○○Row.tsx` を作り、`Settings.tsx` に並べる）
   5. 設定画面に出す文言（`ja.ts` と `en.ts`）

@@ -1,6 +1,6 @@
 import { BrowserWindow, screen } from 'electron';
 import { refreshApps } from '../app-list';
-import { PRELOAD, loadPage } from '../load-page';
+import { PRELOAD, loadPage } from './load-page';
 import { EVENT } from '../../shared/ipc-channels';
 import windowIcon from '../../../resources/icon.ico?asset&asarUnpack';
 
@@ -34,7 +34,7 @@ function createLauncherWindow(): void {
     win.setAlwaysOnTop(true, 'screen-saver');
   }
 
-  loadPage(win, 'index.html');
+  loadPage(win, 'launcher/index.html');
 
   // 他のところをクリックしたら隠す
   win.on('blur', () => win.hide());

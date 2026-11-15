@@ -1,9 +1,9 @@
 import { app } from 'electron';
 import fs from 'fs';
 import path from 'path';
-import { LANGUAGES } from '../shared/messages';
-import type { Language } from '../shared/messages';
-import type { Settings } from '../shared/types';
+import { LANGUAGES } from '../../shared/messages';
+import type { Language } from '../../shared/messages';
+import type { Settings } from '../../shared/types';
 
 // ホットキーの書き方（Electron の Accelerator）。修飾キー（Ctrl など）＋キー、または F1〜F24 だけ
 const MODIFIERS = ['CommandOrControl', 'CmdOrCtrl', 'Command', 'Cmd', 'Control', 'Ctrl', 'Alt', 'Option', 'AltGr', 'Shift', 'Super', 'Meta'];

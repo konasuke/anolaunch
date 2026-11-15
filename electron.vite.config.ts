@@ -23,7 +23,7 @@ export default defineConfig({
       rollupOptions: {
         // 画面の入口は2つ（ランチャーと設定画面）
         input: {
-          index: resolve(__dirname, 'src/renderer/index.html'),
+          'launcher/index': resolve(__dirname, 'src/renderer/launcher/index.html'),
           'settings/index': resolve(__dirname, 'src/renderer/settings/index.html'),
         },
       },

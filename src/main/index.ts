@@ -1,11 +1,11 @@
 import { app, globalShortcut } from 'electron';
 import { initAppList, refreshApps } from './app-list';
 import { cleanupIcons, pruneIconCache } from './icons';
-import { createTray } from './tray';
-import { getSettings } from './settings';
-import { registerHotkey } from './hotkey';
-import { applyAutoStart } from './autostart';
-import { openSettingsWindow } from './settings-window';
+import { createTray } from './system/tray';
+import { getSettings } from './store/settings';
+import { registerHotkey } from './system/hotkey';
+import { applyAutoStart } from './system/autostart';
+import { openSettingsWindow } from './windows/settings';
 import { setLanguage } from '../shared/messages';
 import { registerIpc } from './ipc';
 import { createLauncherWindow, showLauncher, toggleLauncher, sendToLauncher } from './windows/launcher';
