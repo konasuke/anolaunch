@@ -66,7 +66,9 @@ function createStarButton(app) {
   const button = document.createElement('button');
   button.type = 'button';
   button.className = 'star';
-  button.setAttribute('aria-label', t(favorites.includes(app.path) ? 'favorite.remove' : 'favorite.add'));
+  const label = `${t(favorites.includes(app.path) ? 'favorite.remove' : 'favorite.add')} (${isMac ? '⌘D' : 'Ctrl+D'})`;
+  button.dataset.tooltip = label; // 見た目の吹き出し（CSS）に使う
+  button.setAttribute('aria-label', label);
   const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
   svg.setAttribute('viewBox', '0 0 24 24');
   svg.setAttribute('aria-hidden', 'true');
@@ -198,6 +200,7 @@ window.api.getAppInfo().then((info) => {
   isMac = info.platform === 'darwin';
   shortcutHint = isMac ? '⌘,' : 'Ctrl+,';
   updateSettingsTooltip();
+  render(); // 星ボタンの吹き出しのショートカットを、OS に合わせて作り直す
 });
 
 // クリックしても、入力欄からフォーカスを外さない
