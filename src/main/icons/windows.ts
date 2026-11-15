@@ -1,16 +1,16 @@
-const { app, shell, nativeImage } = require('electron');
-const { execFile } = require('child_process');
-const { promisify } = require('util');
-const fs = require('fs');
-const path = require('path');
-const { ICON_SIZE } = require('./constants');
-const { statKey } = require('./cache');
+import { app, shell, nativeImage } from 'electron';
+import { execFile } from 'child_process';
+import { promisify } from 'util';
+import fs from 'fs';
+import path from 'path';
+import { ICON_SIZE } from './constants';
+import { statKey } from './cache';
 
 const execFileAsync = promisify(execFile);
 
 // 汎用の .exe アイコン。中身が空の .exe に対して OS が返すもの（一度だけ作る）
-let genericExePromise = null;
-function genericExeIcon(tmpDir) {
+let genericExePromise: Promise<string | null> | null = null;
+function genericExeIcon(tmpDir: string): Promise<string | null> {
   if (!genericExePromise) {
     genericExePromise = (async () => {
       const file = path.join(tmpDir, 'generic.exe');
@@ -46,10 +46,11 @@ const EXTRACT_SCRIPT =
   '};' +
   'ConvertTo-Json -Compress -InputObject @($out)';
 
-let pending = []; // { filePath, resolve }
-let batchTimer = null;
+type Pending = { filePath: string; resolve: (icon: string | null) => void };
+let pending: Pending[] = [];
+let batchTimer: ReturnType<typeof setTimeout> | null = null;
 
-async function runBatch(batch) {
+async function runBatch(batch: Pending[]): Promise<void> {
   try {
     const { stdout } = await execFileAsync('powershell', ['-NoProfile', '-Command', EXTRACT_SCRIPT], {
       encoding: 'utf8',
@@ -63,14 +64,14 @@ async function runBatch(batch) {
   }
 }
 
-function flushBatches() {
+function flushBatches(): void {
   batchTimer = null;
   const all = pending;
   pending = [];
   for (let i = 0; i < all.length; i += BATCH_SIZE) runBatch(all.slice(i, i + BATCH_SIZE));
 }
 
-function iconFromExtract(filePath) {
+function iconFromExtract(filePath: string): Promise<string | null> {
   return new Promise((resolve) => {
     pending.push({ filePath, resolve });
     if (!batchTimer) batchTimer = setTimeout(flushBatches, BATCH_DELAY_MS);
@@ -79,7 +80,7 @@ function iconFromExtract(filePath) {
 
 // ショートカットから、アイコンを取り出す元のファイルを決める
 // （.lnk 自体のアイコンだと、ショートカットの矢印が付くことがあるため、指す先のファイルにする）
-function iconSourceOf(appPath) {
+function iconSourceOf(appPath: string): string {
   let target = appPath;
   if (appPath.toLowerCase().endsWith('.url')) {
     // .url（Steam のゲームなど）は、IconFile= に、アイコンのファイルが書かれている
@@ -100,7 +101,7 @@ function iconSourceOf(appPath) {
 
 // ファイルに残すアイコンの鍵。ショートカットと、アイコンを取り出す元のファイルの、大きさと更新日時
 // （どちらかが変わると、鍵が変わり、取り直される。ファイルが無いときは null で、残さない）
-function windowsIconKey(appPath) {
+function windowsIconKey(appPath: string): string | null {
   try {
     const parts = [statKey(appPath), statKey(iconSourceOf(appPath))];
     return parts.every(Boolean) ? parts.join('|') : null;
@@ -110,7 +111,7 @@ function windowsIconKey(appPath) {
 }
 
 // ショートカット（.lnk）の指す先のアイコンを、OS に聞いて取る
-async function iconFromShortcut(appPath, tmpDir) {
+async function iconFromShortcut(appPath: string, tmpDir: string): Promise<string | null> {
   const target = iconSourceOf(appPath);
   // .ico ファイルが指定されている場合、getFileIcon は .ico 全般の汎用アイコンを返してしまうので、
   // 中身の画像を直接読む
@@ -125,8 +126,8 @@ async function iconFromShortcut(appPath, tmpDir) {
   return icon;
 }
 
-async function getWindowsIcon(appPath, tmpDir) {
+async function getWindowsIcon(appPath: string, tmpDir: string): Promise<string | null> {
   return iconFromShortcut(appPath, tmpDir).catch(() => null);
 }
 
-module.exports = { getWindowsIcon, windowsIconKey };
+export { getWindowsIcon, windowsIconKey };

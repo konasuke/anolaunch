@@ -1,22 +1,22 @@
-const { execFile } = require('child_process');
-const { promisify } = require('util');
-const fs = require('fs');
-const path = require('path');
-const { ICON_SIZE } = require('./constants');
-const { statKey } = require('./cache');
-const { unpacked } = require('../unpacked');
+import { execFile } from 'child_process';
+import { promisify } from 'util';
+import fs from 'fs';
+import path from 'path';
+import { ICON_SIZE } from './constants';
+import { statKey } from './cache';
+import jxaPath from '../../../resources/icon.jxa?asset&asarUnpack';
 
 const execFileAsync = promisify(execFile);
 
 // ファイルに残すアイコンの鍵。.app の Info.plist の、大きさと更新日時
 // （アプリが更新されると、Info.plist が書き換わるので、鍵が変わり、取り直される。無いときは null で、残さない）
-function macIconKey(appPath) {
+function macIconKey(appPath: string): string | null {
   return statKey(path.join(appPath, 'Contents', 'Info.plist'));
 }
 
 // アプリ自身が持つアイコンファイル（.icns）を、標準の sips で PNG にして読む
 // （Electron の nativeImage は .icns を読めず、getFileIcon は汎用のアイコンしか返さなかった）
-async function iconFromBundle(appPath, tmpDir) {
+async function iconFromBundle(appPath: string, tmpDir: string): Promise<string | null> {
   const plist = path.join(appPath, 'Contents', 'Info.plist');
   const { stdout } = await execFileAsync('plutil', ['-extract', 'CFBundleIconFile', 'raw', '-o', '-', plist]);
   let file = stdout.trim();
@@ -32,18 +32,18 @@ async function iconFromBundle(appPath, tmpDir) {
 }
 
 // .icns を持たないアプリ（新しい形式のアイコン）は、OS に聞いて PNG にしてもらう
-async function iconFromWorkspace(appPath, tmpDir) {
+async function iconFromWorkspace(appPath: string, tmpDir: string): Promise<string> {
   const pngPath = path.join(tmpDir, `ws-${Math.random().toString(36).slice(2)}.png`);
-  await execFileAsync('osascript', ['-l', 'JavaScript', unpacked(path.join(__dirname, 'icon.jxa')), appPath, pngPath]);
+  await execFileAsync('osascript', ['-l', 'JavaScript', jxaPath, appPath, pngPath]);
   const png = await fs.promises.readFile(pngPath);
   return `data:image/png;base64,${png.toString('base64')}`;
 }
 
 // 速い方法（.icns）を先に試し、だめなら OS に聞く。どちらも取れなければ、アイコンなし
-async function getMacIcon(appPath, tmpDir) {
+async function getMacIcon(appPath: string, tmpDir: string): Promise<string | null> {
   const icon = await iconFromBundle(appPath, tmpDir).catch(() => null);
   if (icon) return icon;
   return iconFromWorkspace(appPath, tmpDir).catch(() => null);
 }
 
-module.exports = { getMacIcon, macIconKey };
+export { getMacIcon, macIconKey };

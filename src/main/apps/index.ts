@@ -1,15 +1,16 @@
-const { scanMac } = require('./mac');
-const { scanWindows } = require('./windows');
-const { scanSteam } = require('./steam');
-const { getUwpApps } = require('./uwp');
+import { scanMac } from './mac';
+import { scanWindows } from './windows';
+import { scanSteam } from './steam';
+import { getUwpApps } from './uwp';
+import type { AppEntry } from '../../shared/types';
 
-function getApps() {
+function getApps(): AppEntry[] {
   const isWindows = process.platform === 'win32';
   const apps = isWindows ? scanWindows() : scanMac();
   const games = new Map(scanSteam().map((g) => [g.steamId, g]));
 
-  const result = [];
-  const shown = new Set(); // すでに一覧にある Steam のゲームの番号
+  const result: AppEntry[] = [];
+  const shown = new Set<string>(); // すでに一覧にある Steam のゲームの番号
   for (const app of apps) {
     // Mac の Steam のショートカットは、アイコンが Steam のロゴ（共通の絵）になっている。
     // Steam から集めたゲーム（ゲーム自身のアイコンがある）に置き換えて、名前だけショートカットのものを使う
@@ -34,4 +35,4 @@ function getApps() {
   return result.sort((a, b) => a.name.localeCompare(b.name));
 }
 
-module.exports = { getApps };
+export { getApps };

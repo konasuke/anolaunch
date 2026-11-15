@@ -1,7 +1,8 @@
-const { shell } = require('electron');
-const fs = require('fs');
-const path = require('path');
-const { KIND } = require('../../shared/kinds');
+import { shell } from 'electron';
+import fs from 'fs';
+import path from 'path';
+import { KIND } from '../../shared/kinds';
+import type { AppEntry } from '../../shared/types';
 
 // Windows：スタートメニューのショートカット（.lnk）が置かれるフォルダ
 const DIRS = [
@@ -13,7 +14,7 @@ const DIRS = [
 const IGNORE = /uninstall|アンインストール|readme|ヘルプ|\bhelp\b/i;
 
 // インターネットショートカット（.url）の URL を読む。Steam のゲームは、steam://rungameid/番号 の .url で置かれる
-function readUrl(file) {
+function readUrl(file: string): string {
   try {
     const match = fs.readFileSync(file, 'utf8').match(/^URL=(.+)$/m);
     return match ? match[1].trim() : '';
@@ -23,8 +24,8 @@ function readUrl(file) {
 }
 
 // フォルダの中を、サブフォルダも含めて辿り、.lnk と .url のパスを集める
-function collectShortcuts(dir, out) {
-  let entries;
+function collectShortcuts(dir: string, out: string[]): void {
+  let entries: fs.Dirent[];
   try {
     entries = fs.readdirSync(dir, { withFileTypes: true });
   } catch {
@@ -38,7 +39,7 @@ function collectShortcuts(dir, out) {
 }
 
 // ショートカットの指す先が無い（アンインストール後にショートカットだけ残った）ものは、起動できないので除く
-function isBroken(file) {
+function isBroken(file: string): boolean {
   if (!file.toLowerCase().endsWith('.lnk')) return false;
   try {
     const { target } = shell.readShortcutLink(file);
@@ -48,18 +49,18 @@ function isBroken(file) {
   }
 }
 
-function scanWindows() {
-  const files = [];
+function scanWindows(): AppEntry[] {
+  const files: string[] = [];
   for (const dir of DIRS) collectShortcuts(dir, files);
 
-  const found = new Map();
+  const found = new Map<string, AppEntry>();
   for (const file of files) {
     const name = path.basename(file, path.extname(file));
     if (IGNORE.test(name) || isBroken(file)) continue;
     // Web のページへのリンクは、アプリではないので除く（steam:// など、アプリを開くものだけ残す）
     if (file.toLowerCase().endsWith('.url') && /^https?:/i.test(readUrl(file))) continue;
     if (found.has(name)) continue;
-    const app = { name, path: file, kind: KIND.APP };
+    const app: AppEntry = { name, path: file, kind: KIND.APP };
     // Steam のゲームの .url は、Steam から集めたものとの重なりを除くために、番号を持たせる
     const steamId = file.toLowerCase().endsWith('.url') && readUrl(file).match(/^steam:\/\/rungameid\/(\d+)/i)?.[1];
     if (steamId) {
@@ -71,4 +72,4 @@ function scanWindows() {
   return [...found.values()];
 }
 
-module.exports = { scanWindows };
+export { scanWindows };

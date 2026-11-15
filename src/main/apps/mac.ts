@@ -1,7 +1,8 @@
-const fs = require('fs');
-const os = require('os');
-const path = require('path');
-const { KIND } = require('../../shared/kinds');
+import fs from 'fs';
+import os from 'os';
+import path from 'path';
+import { KIND } from '../../shared/kinds';
+import type { AppEntry } from '../../shared/types';
 
 // Mac：.app が置かれるフォルダ
 const DIRS = [
@@ -14,7 +15,7 @@ const DIRS = [
 
 // Steam がゲームを入れたときに作るショートカットアプリは、Contents/MacOS/run.sh で
 // `open steam://run/番号` を呼ぶ。その番号を返す（Steam のショートカットでなければ、なし）
-function steamIdOf(appPath) {
+function steamIdOf(appPath: string): string | undefined {
   try {
     const script = fs.readFileSync(path.join(appPath, 'Contents', 'MacOS', 'run.sh'), 'utf8');
     return script.match(/steam:\/\/(?:run|rungameid)\/(\d+)/i)?.[1];
@@ -23,8 +24,8 @@ function steamIdOf(appPath) {
   }
 }
 
-function scanMac() {
-  const found = new Map();
+function scanMac(): AppEntry[] {
+  const found = new Map<string, AppEntry>();
   for (const dir of DIRS) {
     let entries;
     try {
@@ -36,7 +37,7 @@ function scanMac() {
       if (!entry.endsWith('.app')) continue;
       const name = entry.slice(0, -'.app'.length);
       if (found.has(name)) continue;
-      const app = { name, path: path.join(dir, entry), kind: KIND.APP };
+      const app: AppEntry = { name, path: path.join(dir, entry), kind: KIND.APP };
       // Steam のショートカットは、Steam から集めたゲームとの重なりを直すために、番号を持たせる
       const steamId = steamIdOf(app.path);
       if (steamId) app.steamId = steamId;
@@ -46,4 +47,4 @@ function scanMac() {
   return [...found.values()];
 }
 
-module.exports = { scanMac };
+export { scanMac };

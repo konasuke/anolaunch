@@ -1,12 +1,12 @@
-const { shell } = require('electron');
-const { spawn } = require('child_process');
-const { PREFIX } = require('./apps/uwp');
+import { shell } from 'electron';
+import { spawn } from 'child_process';
+import { PREFIX } from './apps/uwp';
 
 // アプリを起動する。失敗したときは、エラーの文字列を返す（成功なら空）
 // - steam:// のような URL は、OS が対応するアプリ（Steam）に渡す
 // - ストアアプリ（shell:AppsFolder\…）は、explorer.exe に開いてもらう
 // - ほかは、ファイルとして開く
-async function launch(target) {
+async function launch(target: string): Promise<string> {
   if (target.startsWith('steam://')) {
     try {
       await shell.openExternal(target);
@@ -23,4 +23,4 @@ async function launch(target) {
   return shell.openPath(target);
 }
 
-module.exports = { launch };
+export { launch };

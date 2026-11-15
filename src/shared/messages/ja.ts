@@ -1,6 +1,6 @@
-// 画面に出す文言（日本語）。キーは en.js と同じにする
+// 画面に出す文言（日本語）。キーは en.ts と同じにする
 // 種類（kind.*）は、英語の名前のまま使う（Raycast のように、Application・Game と入力して絞り込めるため）
-module.exports = {
+const ja = {
   'search.placeholder': 'アプリ名を入力',
   'search.settings': '設定',
   'favorite.add': 'お気に入りに追加',
@@ -27,4 +27,8 @@ module.exports = {
   'settings.cache.clear': 'キャッシュを削除',
   'settings.cache.clearing': '削除中…',
   'settings.cache.cleared': '削除しました',
-  'settings.cache.note': 'アプリの一覧とアイコンを、取り直します',};
+  'settings.cache.note': 'アプリの一覧とアイコンを、取り直します',
+};
+
+export default ja;
+

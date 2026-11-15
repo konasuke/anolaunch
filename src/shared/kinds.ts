@@ -3,6 +3,8 @@ const KIND = {
   APP: 'app',
   GAME: 'game',
   STORE: 'store',
-};
+} as const;
 
-module.exports = { KIND };
+export type Kind = (typeof KIND)[keyof typeof KIND];
+
+export { KIND };

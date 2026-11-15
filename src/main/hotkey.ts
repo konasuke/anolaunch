@@ -1,10 +1,10 @@
-const { globalShortcut } = require('electron');
+import { globalShortcut } from 'electron';
 
 // 今登録しているホットキー
-let current = null;
+let current: string | null = null;
 
 // ホットキーを登録する。成功したら true。失敗したら（ほかのアプリが使っているなど）false で、今のホットキーはそのまま
-function registerHotkey(accelerator, callback) {
+function registerHotkey(accelerator: string, callback: () => void): boolean {
   if (accelerator === current && globalShortcut.isRegistered(accelerator)) return true;
   let ok = false;
   try {
@@ -19,4 +19,4 @@ function registerHotkey(accelerator, callback) {
   return true;
 }
 
-module.exports = { registerHotkey };
+export { registerHotkey };

@@ -1,22 +1,22 @@
-const { app, BrowserWindow, globalShortcut, ipcMain, screen } = require('electron');
-const path = require('path');
-const { initAppList, getAppList, findApp, refreshApps } = require('./app-list');
-const { getIcon, clearIconCache, cleanupIcons, pruneIconCache } = require('./icons');
-const { createTray, refreshTray } = require('./tray');
-const { launch } = require('./launch');
-const { getFavorites, toggleFavorite } = require('./favorites');
-const { getSettings, updateSettings, getDefaults, isValidHotkey } = require('./settings');
-const { registerHotkey } = require('./hotkey');
-const { applyAutoStart } = require('./autostart');
-const { openSettingsWindow, refreshSettingsWindowTitle, setHotkeyRecording } = require('./settings-window');
-const { allMessages, setLanguage } = require('../shared/messages');
-const { unpacked } = require('./unpacked');
+import { app, BrowserWindow, globalShortcut, ipcMain, screen } from 'electron';
+import { initAppList, getAppList, findApp, refreshApps } from './app-list';
+import { getIcon, clearIconCache, cleanupIcons, pruneIconCache } from './icons';
+import { createTray, refreshTray } from './tray';
+import { launch } from './launch';
+import { getFavorites, toggleFavorite } from './favorites';
+import { getSettings, updateSettings, getDefaults, isValidHotkey } from './settings';
+import { registerHotkey } from './hotkey';
+import { applyAutoStart } from './autostart';
+import { openSettingsWindow, refreshSettingsWindowTitle, setHotkeyRecording } from './settings-window';
+import { allMessages, setLanguage } from '../shared/messages';
+import { PRELOAD, loadPage } from './load-page';
+import windowIcon from '../../resources/icon.ico?asset&asarUnpack';
 
 const WIDTH = 600;
 const MIN_HEIGHT = 60; // 入力欄だけのとき（画面側が測った高さで、すぐ置き換わる）
 const MAX_HEIGHT = 420; // 結果が多くても、これより大きくしない
 
-let win;
+let win: BrowserWindow;
 
 function createWindow() {
   win = new BrowserWindow({
@@ -24,13 +24,13 @@ function createWindow() {
     height: MIN_HEIGHT,
     useContentSize: true,
     show: false,
-    icon: unpacked(path.join(__dirname, '../assets/icon.ico')), // Alt+Tab などに出るアイコン
+    icon: windowIcon, // Alt+Tab などに出るアイコン
     frame: false,
     resizable: false,
     alwaysOnTop: true,
     skipTaskbar: true,
     webPreferences: {
-      preload: path.join(__dirname, '../renderer/preload.js'),
+      preload: PRELOAD,
       contextIsolation: true,
       nodeIntegration: false,
     },
@@ -42,7 +42,7 @@ function createWindow() {
     win.setAlwaysOnTop(true, 'screen-saver');
   }
 
-  win.loadFile(path.join(__dirname, '../renderer/index.html'));
+  loadPage(win, 'index.html');
 
   // 他のところをクリックしたら隠す
   win.on('blur', () => win.hide());
@@ -91,7 +91,7 @@ app.whenReady().then(() => {
   if (!hasLock) return;
 
   // Mac：常駐するので、Dock にアイコンを出さない（目印はメニューバーのトレイ）
-  if (process.platform === 'darwin') app.dock.hide();
+  if (process.platform === 'darwin') app.dock?.hide();
 
   // 保存してある設定を反映してから、トレイを作る（言語がトレイの文言に効くため）
   const settings = getSettings();

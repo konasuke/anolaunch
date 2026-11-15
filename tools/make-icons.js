@@ -2,10 +2,10 @@
 // 元の画像（design/anole-icon-original.webp）から、次のファイルを書き出す
 //   build/icon.png、build/icons/<サイズ>.png ：Windows・Linux 用（端まで描いたアイコン）
 //   build/icon.ico                          ：Windows 用
-//   src/assets/icon.ico                     ：窓のアイコン（同じもの。アプリの中から読む）
+//   resources/icon.ico                      ：窓のアイコン（同じもの。アプリの中から読む）
 //   build/icon-mac.png、build/icon.icns     ：Mac 用（周りに余白を足したアイコン）
-//   src/assets/logo.png                     ：入力欄の左端に出すロゴ
-//   src/assets/tray.png、tray@2x.png        ：トレイ用（トカゲだけ、背景が透明）
+//   src/renderer/assets/logo.png            ：入力欄の左端に出すロゴ
+//   resources/tray.png、tray@2x.png         ：トレイ用（トカゲだけ、背景が透明）
 const { app, BrowserWindow } = require('electron');
 const fs = require('fs');
 const path = require('path');
@@ -48,13 +48,13 @@ app.whenReady().then(async () => {
   write(path.join(ROOT, 'build', 'icon-mac.png'), mac[1024]);
   const ico = buildIco(Object.fromEntries([16, 24, 32, 48, 64, 128, 256].map((s) => [s, full[s]])));
   write(path.join(ROOT, 'build', 'icon.ico'), ico);
-  // 窓のアイコン（タイトルバー・タスクバー）。アプリの中から読むので、src の中にも置く
-  write(path.join(ROOT, 'src', 'assets', 'icon.ico'), ico);
+  // 窓のアイコン（タイトルバー・タスクバー）。アプリの中から読むので、resources にも置く
+  write(path.join(ROOT, 'resources', 'icon.ico'), ico);
   // 入力欄の左端に出すロゴ（32px で表示するので、2 倍の 64px）
-  write(path.join(ROOT, 'src', 'assets', 'logo.png'), full[64]);
+  write(path.join(ROOT, 'src', 'renderer', 'assets', 'logo.png'), full[64]);
   write(path.join(ROOT, 'build', 'icon.icns'), buildIcns(mac));
   // トレイ：16px（標準）と 32px（高解像度の画面用。@2x）
-  write(path.join(ROOT, 'src', 'assets', 'tray.png'), tray[16]);
-  write(path.join(ROOT, 'src', 'assets', 'tray@2x.png'), tray[32]);
+  write(path.join(ROOT, 'resources', 'tray.png'), tray[16]);
+  write(path.join(ROOT, 'resources', 'tray@2x.png'), tray[32]);
   app.exit(0);
 });

@@ -1,5 +1,7 @@
-// 画面に出す文言（英語）。キーは ja.js と同じにする
-module.exports = {
+// 画面に出す文言（英語）。キーは ja.ts と同じにする（ja に無いキー・足りないキーは、型のエラーになる）
+import type ja from './ja';
+
+const en: Record<keyof typeof ja, string> = {
   'search.placeholder': 'Type an app name',
   'search.settings': 'Settings',
   'favorite.add': 'Add to favorites',
@@ -26,4 +28,7 @@ module.exports = {
   'settings.cache.clear': 'Clear cache',
   'settings.cache.clearing': 'Clearing…',
   'settings.cache.cleared': 'Cleared',
-  'settings.cache.note': 'Reloads the app list and icons',};
+  'settings.cache.note': 'Reloads the app list and icons',
+};
+
+export default en;

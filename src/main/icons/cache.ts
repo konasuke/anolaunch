@@ -1,8 +1,8 @@
-const { app } = require('electron');
-const crypto = require('crypto');
-const fs = require('fs');
-const path = require('path');
-const { ICON_SIZE } = require('./constants');
+import { app } from 'electron';
+import crypto from 'crypto';
+import fs from 'fs';
+import path from 'path';
+import { ICON_SIZE } from './constants';
 
 // アイコンを、画像ファイルとして、ユーザーのデータフォルダに残す（再起動しても、取り直さないため）
 // ファイル名は、「どのアプリの、どの状態のファイルか」を表す鍵から決める。アプリが更新されて、
@@ -17,13 +17,13 @@ function cacheDir() {
   return path.join(app.getPath('userData'), 'icon-cache');
 }
 
-function fileFor(key) {
+function fileFor(key: string): string {
   const hash = crypto.createHash('sha1').update(`${FORMAT_VERSION}:${ICON_SIZE}:${key}`).digest('hex');
   return path.join(cacheDir(), `${hash}.png`);
 }
 
 // 鍵に使う、ファイルの「大きさと更新日時」。ファイルが無ければ null
-function statKey(file) {
+function statKey(file: string): string | null {
   try {
     const stat = fs.statSync(file);
     return `${file}:${stat.size}:${stat.mtimeMs}`;
@@ -33,7 +33,7 @@ function statKey(file) {
 }
 
 // 保存してあるアイコン（data URL）を返す。無ければ null
-function readCachedIcon(key) {
+function readCachedIcon(key: string): string | null {
   const file = fileFor(key);
   try {
     const png = fs.readFileSync(file);
@@ -46,7 +46,7 @@ function readCachedIcon(key) {
 }
 
 // アイコン（data URL）を保存する。保存できなくても、困らない（次に取り直すだけ）
-function writeCachedIcon(key, dataUrl) {
+function writeCachedIcon(key: string, dataUrl: string): void {
   try {
     fs.mkdirSync(cacheDir(), { recursive: true });
     fs.writeFileSync(fileFor(key), Buffer.from(dataUrl.split(',')[1], 'base64'));
@@ -73,4 +73,4 @@ function pruneDiskCache() {
   }
 }
 
-module.exports = { statKey, readCachedIcon, writeCachedIcon, clearDiskCache, pruneDiskCache };
+export { statKey, readCachedIcon, writeCachedIcon, clearDiskCache, pruneDiskCache };

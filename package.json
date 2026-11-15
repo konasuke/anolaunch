@@ -4,21 +4,32 @@
   "version": "1.1.0",
   "description": "Anolaunch: a hotkey launcher for Windows and macOS",
   "repository": "konasuke/anolaunch",
-  "main": "src/main/index.js",
+  "main": "./out/main/index.js",
   "scripts": {
-    "start": "electron .",
+    "start": "electron-vite dev",
+    "build": "electron-vite build",
+    "typecheck": "tsc -b",
     "icons": "electron tools/make-icons.js",
-    "pack": "electron-builder --dir",
-    "dist": "electron-builder --win",
-    "dist:mac": "electron-builder --mac"
+    "pack": "npm run build && electron-builder --dir",
+    "dist": "npm run build && electron-builder --win",
+    "dist:mac": "npm run build && electron-builder --mac"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "type": "commonjs",
   "devDependencies": {
+    "@types/node": "^26.6.6",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.3.0",
     "electron": "^45.3.2",
-    "electron-builder": "^26.18.0"
+    "electron-builder": "^26.18.0",
+    "electron-vite": "^6.0.0",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.8"
   },
   "build": {
     "appId": "com.anolaunch.app",
@@ -28,12 +39,12 @@
       "output": "dist"
     },
     "files": [
-      "src/**/*",
+      "out/**/*",
+      "resources/**/*",
       "package.json"
     ],
     "asarUnpack": [
-      "src/assets/**/*",
-      "src/main/icons/icon.jxa"
+      "resources/**"
     ],
     "win": {
       "target": [
