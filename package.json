@@ -1,7 +1,7 @@
 {
   "name": "anolaunch",
   "productName": "Anolaunch",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": "Anolaunch: a hotkey launcher for Windows and macOS",
   "repository": "konasuke/anolaunch",
   "main": "./out/main/index.js",
