@@ -37,7 +37,9 @@ Raycast のような、ホットキーで窓が出るランチャー（Electron�
 ## フォルダの構成
 
 - `src/main/`：メインプロセス
-  - `index.ts`：起動、窓、IPC（画面とのやり取り）
+  - `index.ts`：起動と、各モジュールの組み立てだけ
+  - `ipc/`：画面とのやり取り（IPC）の登録。機能ごとに `apps.ts`・`favorites.ts`・`settings.ts`・`window.ts`。`index.ts` の `registerIpc()` がまとめる
+  - `windows/launcher.ts`：ランチャーの窓（作る・出す・隠す・大きさを合わせる）
   - `load-page.ts`：画面（HTML）と preload の読み込み。開発中は Vite のサーバーから、ビルド後は `out/renderer` から
   - `hotkey.ts`・`tray.ts`・`autostart.ts`・`launch.ts`：ホットキー、トレイ、自動起動、アプリの起動
   - `settings.ts`・`settings-window.ts`：設定の保存と、設定画面の窓
@@ -51,7 +53,7 @@ Raycast のような、ホットキーで窓が出るランチャー（Electron�
   - `settings/index.html` → `src/settings/`：設定画面（`Settings.tsx` と、項目ごとの `*Row.tsx`。ホットキーの変換は `hotkey.ts`）
   - `src/hooks/`：ランチャーと設定画面で使う hooks（文言、アプリ一覧、アイコン、OS）
   - `assets/`：画面から読む画像（`logo.png`）
-- `src/shared/`：メイン・preload・画面の全部が使うもの（`messages/`、`kinds.ts`、`types.ts`）
+- `src/shared/`：メイン・preload・画面の全部が使うもの（`messages/`、`kinds.ts`、`types.ts`、`ipc-channels.ts`）。ロジックは入れない
 - `resources/`：メインが実際のファイルとして読む画像・スクリプト（トレイ、窓のアイコン、`icon.jxa`）
 - `out/`：ビルドの出力（Git には入れない）/ `dist/`：インストーラー（同じく入れない）
 - `design/`：アイコンの元の画像 / `build/`：インストーラー用のアイコン / `tools/`：アイコンを作るスクリプト
@@ -61,7 +63,7 @@ Raycast のような、ホットキーで窓が出るランチャー（Electron�
 ### メインと画面のやり取り（IPC）
 
 - 画面からメインに頼む・メインから画面に知らせるものは、次の3か所を**そろえて**書く
-  1. `src/main/index.ts`：`ipcMain.handle`（返事あり）/ `ipcMain.on`（返事なし）、通知は `webContents.send`
+  1. `src/main/ipc/`（機能ごとのファイル）：`ipcMain.handle`（返事あり）/ `ipcMain.on`（返事なし）、通知は `webContents.send`。チャンネル名は `src/shared/ipc-channels.ts` の `INVOKE` / `SEND` / `EVENT` に足して使う（文字列を直接書かない）
   2. `src/preload/index.ts`：`window.api` に公開する関数
   3. `src/shared/types.ts` の `Api`：その関数の型。画面側は `window.api.○○` の型でチェックされる
 - 「〜のとき呼ばれる関数を登録する」`onXxx` は、登録を外す関数を返す。React では `useEffect` の戻り値に渡す
@@ -91,7 +93,7 @@ Raycast のような、ホットキーで窓が出るランチャー（Electron�
 - 項目を足すときは、次の5か所に足す（`Settings` に足して `VALIDATORS` に足し忘れると、型のエラーになる）
   1. `shared/types.ts` の `Settings`
   2. `settings.ts` の `VALIDATORS` と `defaults`
-  3. `index.ts` の `set-settings`（反映する処理）
+  3. `ipc/settings.ts` の `set-settings`（反映する処理）
   4. 設定画面（`src/renderer/src/settings/` に `○○Row.tsx` を作り、`Settings.tsx` に並べる）
   5. 設定画面に出す文言（`ja.ts` と `en.ts`）
 - 設定画面はトレイの「設定…」と、ランチャーの歯車ボタンから開く。画面側からは `window.api.getSettings()` / `setSettings()` で読み書きする（変えた時点で保存する）

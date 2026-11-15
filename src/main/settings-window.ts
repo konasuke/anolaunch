@@ -1,5 +1,6 @@
 import { BrowserWindow } from 'electron';
 import { t } from '../shared/messages';
+import { EVENT } from '../shared/ipc-channels';
 import { PRELOAD, loadPage } from './load-page';
 import windowIcon from '../../resources/icon.ico?asset&asarUnpack';
 
@@ -44,7 +45,7 @@ function openSettingsWindow(): void {
   // 直前に押されていた修飾キー（Alt+Space の判定に使う）
   let modifiers: Modifiers = { control: false, alt: false, shift: false, meta: false };
   const sendKey = (key: string, code: string, m: Modifiers) =>
-    window.webContents.send('hotkey-key', { key, code, ctrlKey: m.control, altKey: m.alt, shiftKey: m.shift, metaKey: m.meta });
+    window.webContents.send(EVENT.hotkeyKey, { key, code, ctrlKey: m.control, altKey: m.alt, shiftKey: m.shift, metaKey: m.meta });
 
   // ホットキーの入力中は、押されたキーを、画面（ページ）ではなく、ここで受け取って渡す
   window.webContents.on('before-input-event', (event, input) => {
