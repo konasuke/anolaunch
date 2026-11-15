@@ -4,71 +4,9 @@
   <meta charset="UTF-8">
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:">
   <title>Anolaunch</title>
-  <style>
-    /* 高さは中身で決まる。窓の高さは renderer.js が測ってメインプロセスに伝える */
-    html, body { margin: 0; background: #1e1e1e; color: #fff; font-family: system-ui, sans-serif; }
-    body { padding: 16px; box-sizing: border-box; }
-    .search { display: flex; align-items: center; gap: 8px; }
-    .logo { width: 32px; height: 32px; flex-shrink: 0; border-radius: 6px; }
-    input {
-      display: block; flex: 1; min-width: 0; font-size: 24px; color: #fff; background: transparent;
-      border: none; outline: none; margin: 0; padding: 0;
-    }
-    input::placeholder { color: #888; }
-    #settings {
-      display: flex; align-items: center; justify-content: center; flex-shrink: 0; width: 28px; height: 28px; padding: 0;
-      color: #888; background: transparent; border: none; border-radius: 6px; cursor: pointer;
-    }
-    #settings { position: relative; }
-    #settings:hover { color: #fff; background: #333; }
-    /* カーソルを合わせたら、すぐ、ボタンの名前（と、ショートカット）を左に出す。title 属性の吹き出しは、出るまで待たされるので使わない */
-    #settings::after {
-      content: attr(data-tooltip); position: absolute; right: calc(100% + 8px); top: 50%; transform: translateY(-50%);
-      padding: 4px 10px; font-size: 12px; white-space: nowrap; color: #fff; background: #333; border: 1px solid #444; border-radius: 6px;
-      opacity: 0; pointer-events: none;
-    }
-    #settings:hover::after { opacity: 1; }
-    #settings svg { width: 18px; height: 18px; }
-    ul { list-style: none; margin: 0; padding: 0; max-height: 340px; overflow-y: auto; }
-    ul:not(:empty) { margin-top: 12px; }
-    li { display: flex; align-items: center; gap: 12px; padding: 6px 8px; font-size: 16px; border-top: 1px solid #333; border-radius: 4px; }
-    li img { width: 24px; height: 24px; flex-shrink: 0; }
-    li img:not([src]) { visibility: hidden; } /* アイコンがなくても、名前の位置を揃える */
-    li .kind { margin-left: auto; padding-left: 12px; font-size: 12px; color: #888; white-space: nowrap; }
-    li.selected { background: #3a3a3a; }
-    /* 星ボタン：お気に入りは塗りつぶしの星を常に出す。そうでないものは、選んでいる行・マウスを合わせた行だけ、枠の星を出す */
-    li .star {
-      display: flex; align-items: center; justify-content: center; flex-shrink: 0; width: 24px; height: 24px; padding: 0;
-      color: #888; background: transparent; border: none; border-radius: 4px; cursor: pointer; visibility: hidden;
-    }
-    li .star svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
-    li.selected .star, li:hover .star, li.favorite .star { visibility: visible; }
-    li.favorite .star { color: #f5c542; }
-    li.favorite .star svg { fill: currentColor; }
-    li .star:hover { background: #444; }
-    /* カーソルを合わせたら、すぐ、ボタンの名前とショートカットを左に出す（歯車ボタンと同じ） */
-    li .star { position: relative; }
-    li .star::after {
-      content: attr(data-tooltip); position: absolute; right: calc(100% + 8px); top: 50%; transform: translateY(-50%);
-      padding: 4px 10px; font-size: 12px; white-space: nowrap; color: #fff; background: #333; border: 1px solid #444; border-radius: 6px;
-      opacity: 0; pointer-events: none; z-index: 1;
-    }
-    li .star:hover::after { opacity: 1; }
-  </style>
 </head>
 <body>
-  <div class="search">
-    <img class="logo" src="./assets/logo.png" alt="" draggable="false">
-    <input id="query" type="text" autofocus>
-    <!-- 歯車のアイコン（Feather Icons、MIT）。クリックで設定画面を開く -->
-    <button id="settings" type="button">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <circle cx="12" cy="12" r="3"></circle>
-        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
-      </svg>
-    </button>
-  </div>
-  <ul id="results"></ul>
-  <script type="module" src="./renderer.js"></script>
+  <div id="root"></div>
+  <script type="module" src="./src/launcher/main.tsx"></script>
 </body>
 </html>

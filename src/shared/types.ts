@@ -38,6 +38,9 @@ export interface AppInfo {
   platform: string; // process.platform（'darwin'・'win32' など）
 }
 
+// onXxx で登録した関数を、登録から外す
+export type Unsubscribe = () => void;
+
 // preload が画面に公開する関数（window.api）。メインの ipcMain.handle / on と対応する
 export interface Api {
   getApps: () => Promise<AppEntry[]>;
@@ -45,10 +48,11 @@ export interface Api {
   getIcon: (appPath: string) => Promise<string | null>;
   // キャッシュ（取ってあるアイコンと、ストアアプリの一覧）を削除する。終わるまで待てる
   clearCache: () => Promise<void>;
-  // アプリの一覧が変わったとき（再スキャンで、追加・削除が見つかったとき）に呼ばれる関数を登録する
-  onAppsChanged: (callback: () => void) => void;
-  // キャッシュが削除されたときに呼ばれる関数を登録する（一覧とアイコンを取り直すため）
-  onCacheCleared: (callback: () => void) => void;
+  // 「〜のときに呼ばれる関数を登録する」onXxx は、どれも、登録を解除する関数を返す
+  // アプリの一覧が変わったとき（再スキャンで、追加・削除が見つかったとき）
+  onAppsChanged: (callback: () => void) => Unsubscribe;
+  // キャッシュが削除されたとき（一覧とアイコンを取り直すため）
+  onCacheCleared: (callback: () => void) => Unsubscribe;
   getMessages: () => Promise<Messages>;
   getSettings: () => Promise<Settings>;
   getDefaultSettings: () => Promise<Settings>;
@@ -56,15 +60,15 @@ export interface Api {
   openSettings: () => void;
   // ホットキーの入力中かどうかを、メインに伝える。入力中に押されたキーは、メインから届く
   setHotkeyRecording: (recording: boolean) => void;
-  onHotkeyKey: (callback: (data: HotkeyKeyEvent) => void) => void;
+  onHotkeyKey: (callback: (data: HotkeyKeyEvent) => void) => Unsubscribe;
   setSettings: (partial: Partial<Settings>) => Promise<SetSettingsResult>;
-  // 言語が変わって、文言が入れ替わったときに呼ばれる関数を登録する
-  onMessagesChanged: (callback: () => void) => void;
+  // 言語が変わって、文言が入れ替わったとき
+  onMessagesChanged: (callback: () => void) => Unsubscribe;
   // お気に入り（入れた順の、アプリの path の配列）。toggleFavorite は、切り替えた後の配列を返す
   getFavorites: () => Promise<string[]>;
   toggleFavorite: (appPath: string) => Promise<string[]>;
   launchApp: (appPath: string) => Promise<void>;
   resizeWindow: (height: number) => void;
-  // 窓が表示されたときに呼ばれる関数を登録する
-  onShown: (callback: () => void) => void;
+  // 窓が表示されたとき
+  onShown: (callback: () => void) => Unsubscribe;
 }
