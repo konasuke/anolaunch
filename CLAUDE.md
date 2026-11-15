@@ -70,6 +70,7 @@ anolaunch/
 │   ├── preload/
 │   │   └── index.ts           # 画面に window.api を渡す（唯一の入り口）
 │   ├── renderer/              # 画面（React）
+│   │   ├── env.d.ts           # 画面側の型の宣言
 │   │   ├── launcher/index.html   # 入口の HTML
 │   │   ├── settings/index.html
 │   │   ├── assets/            # 画面から読む画像（logo.png）
@@ -87,13 +88,15 @@ anolaunch/
 ├── build/                     # インストーラー用のアイコン
 ├── tools/                     # アイコンを作るスクリプト
 ├── _doc/                      # TODO.md
+├── .github/workflows/         # release.yml（タグの push でインストーラーを作る）
+├── electron.vite.config.ts    # ビルドの設定（画面の入口の HTML もここ）
 ├── out/                       # ビルドの出力（Git には入れない）
 └── dist/                      # インストーラー（同じく入れない）
 ```
 
 - `store/favorites.ts` は、設定とは別のファイルに保存する（設定の「初期値に戻す」で消えないように）
 - `windows/load-page.ts` の読み込み先は、開発中は Vite のサーバー、ビルド後は `out/renderer`
-- `shared/` にはロジックを入れない（下の「方針」）
+- `shared/` にはロジックを入れない（上の「方針」）
 
 ## 構成と決まりごと
 
@@ -147,7 +150,7 @@ anolaunch/
 ### 実際のファイル（resources）
 
 - メインが、画像や `icon.jxa` のように、OS や別のプログラムに渡す実際のファイルは、`resources/` に置く
-- 読むときは `import trayIcon from '../../resources/tray.png?asset&asarUnpack'` の形で、パスを受け取る（electron-vite の機能）。インストール版でも、書庫の外の正しい場所になる
+- 読むときは `import trayIcon from '../../../resources/tray.png?asset&asarUnpack'` の形で、パスを受け取る（electron-vite の機能。`../` の数は、読むファイルの深さで変わる）。インストール版でも、書庫の外の正しい場所になる
 - 画面から読む画像（`logo.png`）は、`src/renderer/assets/` に置いて、普通に `import` する
 
 ### インストーラー
