@@ -2,6 +2,8 @@
 module.exports = {
   'search.placeholder': 'Type an app name',
   'search.settings': 'Settings',
+  'favorite.add': 'Add to favorites',
+  'favorite.remove': 'Remove from favorites',
   'tray.tooltip': 'Anolaunch',
   'tray.show': 'Show',
   'tray.settings': 'Settings…',

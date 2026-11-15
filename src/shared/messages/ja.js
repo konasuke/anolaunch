@@ -3,6 +3,8 @@
 module.exports = {
   'search.placeholder': 'アプリ名を入力',
   'search.settings': '設定',
+  'favorite.add': 'お気に入りに入れる',
+  'favorite.remove': 'お気に入りから外す',
   'tray.tooltip': 'Anolaunch',
   'tray.show': '表示',
   'tray.settings': '設定…',
