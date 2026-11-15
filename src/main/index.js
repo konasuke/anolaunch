@@ -4,6 +4,7 @@ const { initAppList, getAppList, findApp, refreshApps } = require('./app-list');
 const { getIcon, clearIconCache, cleanupIcons, pruneIconCache } = require('./icons');
 const { createTray, refreshTray } = require('./tray');
 const { launch } = require('./launch');
+const { getFavorites, toggleFavorite } = require('./favorites');
 const { getSettings, updateSettings, getDefaults, isValidHotkey } = require('./settings');
 const { registerHotkey } = require('./hotkey');
 const { applyAutoStart } = require('./autostart');
@@ -140,6 +141,10 @@ app.whenReady().then(() => {
     const found = findApp(appPath);
     return found ? getIcon(found) : null;
   });
+
+  // お気に入り。入れた順の path の配列を返す。切り替えは、一覧にあるアプリだけ受け付け、切り替えた後の配列を返す
+  ipcMain.handle('get-favorites', () => getFavorites());
+  ipcMain.handle('toggle-favorite', (event, appPath) => (findApp(appPath) ? toggleFavorite(appPath) : getFavorites()));
 
   // 起動の少しあとに、一覧を最新にする（保存してあったストアアプリの一覧は、古いかもしれない）。
   // ログイン直後の、ほかのアプリの起動と取り合わないよう、すぐにはやらない

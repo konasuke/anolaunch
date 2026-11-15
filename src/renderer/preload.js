@@ -22,6 +22,9 @@ contextBridge.exposeInMainWorld('api', {
   setSettings: (partial) => ipcRenderer.invoke('set-settings', partial),
   // 言語が変わって、文言が入れ替わったときに呼ばれる関数を登録する
   onMessagesChanged: (callback) => ipcRenderer.on('messages-changed', () => callback()),
+  // お気に入り（入れた順の、アプリの path の配列）。toggleFavorite は、切り替えた後の配列を返す
+  getFavorites: () => ipcRenderer.invoke('get-favorites'),
+  toggleFavorite: (appPath) => ipcRenderer.invoke('toggle-favorite', appPath),
   launchApp: (appPath) => ipcRenderer.invoke('launch-app', appPath),
   resizeWindow: (height) => ipcRenderer.send('resize-window', height),
   // 窓が表示されたときに呼ばれる関数を登録する
