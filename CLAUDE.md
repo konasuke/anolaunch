@@ -41,26 +41,59 @@ Raycast のような、ホットキーで窓が出るランチャー（Electron�
 
 ## フォルダの構成
 
-- `src/main/`：メインプロセス
-  - `index.ts`：起動と、各モジュールの組み立てだけ
-  - `ipc/`：画面とのやり取り（IPC）の登録。機能ごとに `apps.ts`・`favorites.ts`・`settings.ts`・`window.ts`。`index.ts` の `registerIpc()` がまとめる
-  - `windows/`：窓。`launcher.ts`（ランチャーの窓：作る・出す・隠す・大きさを合わせる）、`settings.ts`（設定画面の窓）、`load-page.ts`（画面（HTML）と preload の読み込み。開発中は Vite のサーバーから、ビルド後は `out/renderer` から）
-  - `system/`：OS とのやり取り。`hotkey.ts`・`tray.ts`・`autostart.ts`（ホットキー、トレイ、自動起動）
-  - `store/`：保存するデータ。`settings.ts`（`settings.json`）、`favorites.ts`（お気に入りのアプリの path の配列を `favorites.json` に保存する。設定とは別で、設定の「初期値に戻す」で消えないように）
-  - `launch.ts`：アプリの起動
-  - `app-list.ts`：アプリ一覧の取得と保持
-  - `apps/`：アプリ一覧を集める処理（下の「OS ごとの処理」）
-  - `icons/`：アプリのアイコンを取り出す処理と、そのキャッシュ（`cache.ts`）
-- `src/preload/index.ts`：画面に `window.api` を渡す（画面とメインをつなぐ、唯一の入り口）
-- `src/renderer/`：画面（React）。入口の HTML が2つ
-  - `launcher/index.html` → `src/launcher/`：ランチャー（`Launcher.tsx`、`ResultRow.tsx`、`StarButton.tsx` など。絞り込みは `search.ts`）
-  - `settings/index.html` → `src/settings/`：設定画面（`Settings.tsx` と、項目ごとの `*Row.tsx`。ホットキーの変換は `hotkey.ts`）
-  - `src/hooks/`：ランチャーと設定画面で使う hooks（文言、アプリ一覧、アイコン、OS）
-  - `assets/`：画面から読む画像（`logo.png`）
-- `src/shared/`：メイン・preload・画面の全部が使うもの（`messages/`、`kinds.ts`、`types.ts`、`ipc-channels.ts`）。ロジックは入れない
-- `resources/`：メインが実際のファイルとして読む画像・スクリプト（トレイ、窓のアイコン、`icon.jxa`）
-- `out/`：ビルドの出力（Git には入れない）/ `dist/`：インストーラー（同じく入れない）
-- `design/`：アイコンの元の画像 / `build/`：インストーラー用のアイコン / `tools/`：アイコンを作るスクリプト
+```
+anolaunch/
+├── src/
+│   ├── main/                  # メインプロセス
+│   │   ├── index.ts           # 起動と、各モジュールの組み立てだけ
+│   │   ├── ipc/               # 画面とのやり取り（IPC）の登録。機能ごと
+│   │   │   ├── index.ts       # registerIpc() で全部まとめる
+│   │   │   ├── apps.ts        # アプリ一覧・アイコン・起動・キャッシュ
+│   │   │   ├── favorites.ts
+│   │   │   ├── settings.ts    # 設定と文言
+│   │   │   └── window.ts      # ランチャーの窓の大きさ
+│   │   ├── windows/           # 窓
+│   │   │   ├── launcher.ts    # ランチャーの窓（作る・出す・隠す・大きさ）
+│   │   │   ├── settings.ts    # 設定画面の窓
+│   │   │   └── load-page.ts   # 画面（HTML）と preload の読み込み
+│   │   ├── system/            # OS とのやり取り
+│   │   │   ├── hotkey.ts
+│   │   │   ├── tray.ts
+│   │   │   └── autostart.ts
+│   │   ├── store/             # 保存するデータ
+│   │   │   ├── settings.ts    # settings.json
+│   │   │   └── favorites.ts   # favorites.json
+│   │   ├── apps/              # アプリ一覧を集める（mac / windows / uwp / steam）
+│   │   ├── icons/             # アイコンの取り出し（mac / windows）とキャッシュ（cache.ts）
+│   │   ├── app-list.ts        # アプリ一覧の取得と保持
+│   │   └── launch.ts          # アプリの起動
+│   ├── preload/
+│   │   └── index.ts           # 画面に window.api を渡す（唯一の入り口）
+│   ├── renderer/              # 画面（React）
+│   │   ├── launcher/index.html   # 入口の HTML
+│   │   ├── settings/index.html
+│   │   ├── assets/            # 画面から読む画像（logo.png）
+│   │   └── src/
+│   │       ├── launcher/      # ランチャー（Launcher.tsx、ResultRow.tsx、search.ts など）
+│   │       ├── settings/      # 設定画面（Settings.tsx、項目ごとの *Row.tsx、hotkey.ts）
+│   │       └── hooks/         # 2つの画面で使う hooks（文言、アプリ一覧、アイコン、OS）
+│   └── shared/                # メイン・preload・画面の全部が使うもの
+│       ├── messages/          # 文言（ja.ts / en.ts）
+│       ├── ipc-channels.ts    # IPC のチャンネル名
+│       ├── kinds.ts           # アプリの種類
+│       └── types.ts
+├── resources/                 # メインが実際のファイルとして読む画像・スクリプト（トレイ、窓のアイコン、icon.jxa）
+├── design/                    # アイコンの元の画像
+├── build/                     # インストーラー用のアイコン
+├── tools/                     # アイコンを作るスクリプト
+├── _doc/                      # TODO.md
+├── out/                       # ビルドの出力（Git には入れない）
+└── dist/                      # インストーラー（同じく入れない）
+```
+
+- `store/favorites.ts` は、設定とは別のファイルに保存する（設定の「初期値に戻す」で消えないように）
+- `windows/load-page.ts` の読み込み先は、開発中は Vite のサーバー、ビルド後は `out/renderer`
+- `shared/` にはロジックを入れない（下の「方針」）
 
 ## 構成と決まりごと
 
