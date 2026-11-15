@@ -35,6 +35,7 @@ Raycast のような、ホットキーで窓が出るランチャー（Electron�
   - `index.js`：起動、窓、IPC（画面とのやり取り）
   - `hotkey.js`・`tray.js`・`autostart.js`・`launch.js`：ホットキー、トレイ、自動起動、アプリの起動
   - `settings.js`・`settings-window.js`：設定の保存と、設定画面の窓
+  - `favorites.js`：お気に入りのアプリ（path の配列）を、`favorites.json` に保存する。設定とは別（設定の「初期値に戻す」で消えないように）
   - `app-list.js`：アプリ一覧の取得と保持
   - `apps/`：アプリ一覧を集める処理（下の「OS ごとの処理」）
   - `icons/`：アプリのアイコンを取り出す処理と、そのキャッシュ（`cache.js`）
