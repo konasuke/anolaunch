@@ -7,6 +7,7 @@
 ## 機能
 
 - アプリを自動で集めて検索（Mac の `.app`、Windows のスタートメニューとストアアプリ、Steam のゲーム）
+- お気に入り：よく使うアプリを登録して、窓を開いた直後に一覧で出す
 - トレイ（メニューバー）から、窓の表示・設定・終了
 - 設定：言語（日本語 / English）、ホットキー、PC 起動時の自動起動
 
@@ -14,6 +15,7 @@
 
 - ホットキーで窓を出す（初期値は `Ctrl+Shift+Space`、Mac は `Cmd+Shift+Space`）
 - アプリ名を打つと絞り込まれる。`↑` `↓` で選び、`Enter` で起動
+- `Ctrl+D`（Mac は `Cmd+D`）か、行の右端の星ボタンで、お気に入りに入れる・外す。入力が空のときは、お気に入りだけが並ぶ
 - `Esc` か、窓の外をクリックすると閉じる
 - 設定はトレイ（メニューバー）のアイコン → 「設定…」から開く
 
@@ -44,7 +46,12 @@ npm install
 npm start
 ```
 
-インストーラーは、それぞれの OS で `npm run dist`（Windows）/ `npm run dist:mac`（Mac）。
+- `npm start`：開発用に起動（画面を直すと、窓を開いたまま反映される）
+- `npm run typecheck`：型の確認
+- `npm run build`：`out/` にビルド
+- インストーラーは、それぞれの OS で `npm run dist`（Windows）/ `npm run dist:mac`（Mac）
+
+TypeScript + React で、ビルドは [electron-vite](https://electron-vite.org/) です。
 
 ## リリース
 
