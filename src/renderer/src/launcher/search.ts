@@ -16,20 +16,21 @@ export function favoriteApps(apps: AppEntry[], favorites: string[]): AppEntry[] 
 }
 
 // 「g 文字列」（キーワード＋空白＋検索語）なら、その検索先と検索語（空白は全角でもよい）。そうでなければ null。
+// 「g 」のように、キーワードと空白までのときは、検索語が空（案内の行を出すため）。
 // キーワードだけ（「g」）や、キーワードのあとの空白がまだ無いときは、アプリ名を打っている途中かもしれないので、検索にしない
 export function parseWebSearch(query: string): WebSearch | null {
-  const match = /^(\S+)\s+(.+)$/.exec(query.trimStart());
+  const match = /^(\S+)\s+(.*)$/.exec(query.trimStart());
   if (!match) return null;
   const engine = SEARCH_ENGINES.find((e) => e.keyword === match[1].toLowerCase());
-  const text = match[2].trim();
-  return engine && text ? { engine: engine.id, query: text } : null;
+  return engine ? { engine: engine.id, query: match[2].trim() } : null;
 }
 
-// Web 検索の項目（一覧の先頭に出す）。メインの一覧には無く、入力から、画面が作る
+// Web 検索の項目（一覧の先頭に出す）。メインの一覧には無く、入力から、画面が作る。
+// 検索語がまだ空のときは、「検索語を入力」という案内の行になる（Enter を押しても、何も起きない）
 function webSearchEntry(webSearch: WebSearch, t: (key: MessageKey) => string): AppEntry {
   const engine = SEARCH_ENGINES.find((e) => e.id === webSearch.engine)!;
   return {
-    name: t(engine.nameKey).replace('{query}', webSearch.query),
+    name: webSearch.query ? t(engine.nameKey).replace('{query}', webSearch.query) : t(engine.hintKey),
     path: `search:${webSearch.engine}:${webSearch.query}`,
     kind: KIND.SEARCH,
     webSearch,

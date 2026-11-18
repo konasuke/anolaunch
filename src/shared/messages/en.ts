@@ -16,6 +16,7 @@ const en: Record<keyof typeof ja, string> = {
   'kind.command': 'Command',
   'kind.search': 'Web Search',
   'search.google': 'Search Google for "{query}"',
+  'search.google.hint': 'Search Google: type your query',
   'command.meetCreate': 'Create Google Meet meeting',
   'meet.copied': 'Meeting link copied',
   'meet.failed': 'Could not get the meeting link',

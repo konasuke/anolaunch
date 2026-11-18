@@ -81,8 +81,12 @@ export function Launcher() {
 
   function launch(app: AppEntry) {
     // Web 検索の項目は、検索先と検索語を渡して、ブラウザで開く
-    if (app.webSearch) window.api.openWebSearch(app.webSearch.engine, app.webSearch.query);
-    else window.api.launchApp(app.path);
+    if (app.webSearch) {
+      if (!app.webSearch.query) return; // 検索語がまだ空（案内の行）。何もしない
+      window.api.openWebSearch(app.webSearch.engine, app.webSearch.query);
+    } else {
+      window.api.launchApp(app.path);
+    }
     setQuery('');
     setSelected(0);
   }

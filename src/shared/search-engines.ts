@@ -6,9 +6,10 @@ export interface SearchEngine {
   id: string;
   keyword: string; // 入力の先頭に打つ言葉（小文字）
   nameKey: MessageKey; // 一覧に出す文言。{query} が、入力した検索語に置き換わる
+  hintKey: MessageKey; // 検索語がまだ空のとき（「g 」まで打ったとき）に出す、案内の文言
   url: string; // 検索語（URL 用に変換したもの）を、末尾につなげる
 }
 
 export const SEARCH_ENGINES: SearchEngine[] = [
-  { id: 'google', keyword: 'g', nameKey: 'search.google', url: 'https://www.google.com/search?q=' },
+  { id: 'google', keyword: 'g', nameKey: 'search.google', hintKey: 'search.google.hint', url: 'https://www.google.com/search?q=' },
 ];
