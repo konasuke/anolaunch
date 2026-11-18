@@ -13,6 +13,8 @@ const ja = {
   'kind.game': 'Game',
   'kind.store': 'Store App',
   'kind.command': 'Command',
+  'kind.search': 'Web Search',
+  'search.google': '「{query}」を Google で検索', // {query} は、入力した検索語に置き換わる
   'command.meetCreate': 'Google Meet の会議を作成',
   'meet.copied': '会議の URL をコピーしました',
   'meet.failed': '会議の URL を取得できませんでした',

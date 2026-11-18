@@ -9,6 +9,7 @@ import { useMessages } from '../hooks/useMessages';
 import { ResultRow } from './ResultRow';
 import { SettingsButton } from './SettingsButton';
 import { computeResults } from './search';
+import { SEARCH_ICON } from './searchIcon';
 
 // ランチャーの画面全体：入力欄・歯車ボタン・一覧
 export function Launcher() {
@@ -28,8 +29,8 @@ export function Launcher() {
 
   // 絞り込んだ結果。入力が空のときは、お気に入りだけ
   const results = useMemo(
-    () => computeResults(apps, favorites, query, kindLabel),
-    [apps, favorites, query, kindLabel],
+    () => computeResults(apps, favorites, query, kindLabel, t),
+    [apps, favorites, query, kindLabel, t],
   );
 
   // 一覧が取り直されたら（アプリの追加・削除、キャッシュの削除）、先頭を選ぶ
@@ -79,13 +80,16 @@ export function Launcher() {
   }, []);
 
   function launch(app: AppEntry) {
-    window.api.launchApp(app.path);
+    // Web 検索の項目は、検索先と検索語を渡して、ブラウザで開く
+    if (app.webSearch) window.api.openWebSearch(app.webSearch.engine, app.webSearch.query);
+    else window.api.launchApp(app.path);
     setQuery('');
     setSelected(0);
   }
 
-  // お気に入りに入れる・外す。選んでいる位置は動かさない
+  // お気に入りに入れる・外す。選んでいる位置は動かさない（入力から作った Web 検索の項目は、入れられない）
   function toggleFavorite(app: AppEntry) {
+    if (app.webSearch) return;
     window.api.toggleFavorite(app.path).then(setFavorites);
   }
 
@@ -144,7 +148,7 @@ export function Launcher() {
             app={app}
             selected={index === selected}
             favorite={favorites.includes(app.path)}
-            icon={icons[app.path]}
+            icon={app.webSearch ? SEARCH_ICON : icons[app.path]}
             kindLabel={kindLabel(app)}
             isMac={isMac}
             t={t}

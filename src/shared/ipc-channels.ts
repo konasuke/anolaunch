@@ -6,6 +6,7 @@ export const INVOKE = {
   getIcon: 'get-icon',
   clearCache: 'clear-cache',
   launchApp: 'launch-app',
+  openWebSearch: 'open-web-search',
   getMessages: 'get-messages',
   getSettings: 'get-settings',
   getDefaultSettings: 'get-default-settings',

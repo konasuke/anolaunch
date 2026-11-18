@@ -31,6 +31,7 @@ const api: Api = {
   getFavorites: () => ipcRenderer.invoke(INVOKE.getFavorites),
   toggleFavorite: (appPath) => ipcRenderer.invoke(INVOKE.toggleFavorite, appPath),
   launchApp: (appPath) => ipcRenderer.invoke(INVOKE.launchApp, appPath),
+  openWebSearch: (engine, query) => ipcRenderer.invoke(INVOKE.openWebSearch, engine, query),
   resizeWindow: (height) => ipcRenderer.send(SEND.resizeWindow, height),
   onShown: (callback) => subscribe(EVENT.windowShown, callback),
 };

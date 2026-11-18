@@ -131,12 +131,18 @@ anolaunch/
   - Windows：PowerShell の UI Automation で、全部のブラウザの窓のアドレスバーを読む（Chrome・Edge・Firefox・Brave・Opera・Vivaldi）。開く前から出ていた会議の URL は無視する（作成ページを開いても、ブラウザが手前に来るとは限らないため）
   - Mac：AppleScript で、手前のブラウザのタブの URL を読む（Chrome 系・Arc・Safari。初回は「オートメーション」の許可が要る。Firefox は読めない）。Mac では確認できていない（TODO を見る）
 
+### Web 検索
+
+- 「g 文字列」（キーワード＋空白＋検索語。空白は全角でもよい）と打つと、一覧の先頭に「「文字列」を Google で検索」が出て、Enter で既定のブラウザで開く。キーワードだけ（`g`）では出さない（アプリ名を打っている途中かもしれないため）
+- 検索先は `src/shared/search-engines.ts` の `SEARCH_ENGINES`（キーワード・文言のキー・検索の URL）。足すときは、ここに足して、文言（`search.<ID>`）を `ja.ts` と `en.ts` に足す
+- 検索の項目は、メインの一覧には無く、画面が入力から作る（`launcher/search.ts`）。開くのはメインの `ipc/search.ts`（決まった検索先の URL にしかつなげない）。お気に入りには入れられない
+
 ### 画面に出す文言
 
 - 入力欄の案内、トレイのメニュー、種類の名前などは、`src/shared/messages/` の `ja.ts` と `en.ts` に、キーで書く。コードに文字列を直接書かない
 - キーは `ja.ts` が元になり、`en.ts` は同じキーを全部持つ必要がある（足りない・余分なキーは、型のエラーになる）。`t()` に渡せるのも、このキーだけ
 - メインでは `t('キー')` を使う。画面側（renderer）はメインから受け取った文言を使う（`useMessages()` の `t`）。言語が変わると、自動で入れ替わる
-- コードが比較に使うアプリの種類は、`src/shared/kinds.ts` の `KIND`（`app` / `game` / `store` / `command`）。画面に出す名前は、messages の `kind.<ID>`
+- コードが比較に使うアプリの種類は、`src/shared/kinds.ts` の `KIND`（`app` / `game` / `store` / `command` / `search`）。画面に出す名前は、messages の `kind.<ID>`
 
 ### 設定
 

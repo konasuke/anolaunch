@@ -10,6 +10,13 @@ export interface AppEntry {
   kind: Kind;
   steamId?: string; // Steam のゲームの番号（重なりを除くために使う）
   iconFile?: string | null; // アイコンの画像ファイルが分かっているときの、その場所
+  webSearch?: WebSearch; // Web 検索の項目のとき（画面が、入力から作る。メインの一覧には無い）
+}
+
+// 「g 文字列」の、検索先と検索語
+export interface WebSearch {
+  engine: string; // SEARCH_ENGINES の id
+  query: string;
 }
 
 // 設定（settings.json に保存するもの）
@@ -68,6 +75,8 @@ export interface Api {
   getFavorites: () => Promise<string[]>;
   toggleFavorite: (appPath: string) => Promise<string[]>;
   launchApp: (appPath: string) => Promise<void>;
+  // 検索先（SEARCH_ENGINES の id）と検索語で、既定のブラウザで Web 検索を開く
+  openWebSearch: (engine: string, query: string) => Promise<void>;
   resizeWindow: (height: number) => void;
   // 窓が表示されたとき
   onShown: (callback: () => void) => Unsubscribe;

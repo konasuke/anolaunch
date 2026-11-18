@@ -14,6 +14,8 @@ const en: Record<keyof typeof ja, string> = {
   'kind.game': 'Game',
   'kind.store': 'Store App',
   'kind.command': 'Command',
+  'kind.search': 'Web Search',
+  'search.google': 'Search Google for "{query}"',
   'command.meetCreate': 'Create Google Meet meeting',
   'meet.copied': 'Meeting link copied',
   'meet.failed': 'Could not get the meeting link',

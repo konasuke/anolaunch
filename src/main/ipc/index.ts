@@ -1,5 +1,6 @@
 import { registerAppsIpc } from './apps';
 import { registerFavoritesIpc } from './favorites';
+import { registerSearchIpc } from './search';
 import { registerSettingsIpc } from './settings';
 import { registerWindowIpc } from './window';
 
@@ -7,6 +8,7 @@ import { registerWindowIpc } from './window';
 function registerIpc(): void {
   registerAppsIpc();
   registerFavoritesIpc();
+  registerSearchIpc();
   registerSettingsIpc();
   registerWindowIpc();
 }

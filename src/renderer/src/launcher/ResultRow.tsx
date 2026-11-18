@@ -58,7 +58,8 @@ export function ResultRow({
       <span>{app.name}</span>
       {/* 行の右端に、種類（Application、Game など）を出す */}
       <span className="kind">{kindLabel}</span>
-      <StarButton favorite={favorite} isMac={isMac} t={t} onToggle={onToggleFavorite} />
+      {/* 入力から作った Web 検索の行は、お気に入りに入れられないので、星を出さない */}
+      {!app.webSearch && <StarButton favorite={favorite} isMac={isMac} t={t} onToggle={onToggleFavorite} />}
     </li>
   );
 }
