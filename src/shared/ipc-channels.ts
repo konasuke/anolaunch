@@ -14,6 +14,8 @@ export const INVOKE = {
   getAppInfo: 'get-app-info',
   getFavorites: 'get-favorites',
   toggleFavorite: 'toggle-favorite',
+  getAliases: 'get-aliases',
+  setAliases: 'set-aliases',
 } as const;
 
 // 画面 → メイン（返事なし：send / on）

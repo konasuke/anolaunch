@@ -50,6 +50,7 @@ anolaunch/
 │   │   │   ├── index.ts       # registerIpc() で全部まとめる
 │   │   │   ├── apps.ts        # アプリ一覧・アイコン・起動・キャッシュ
 │   │   │   ├── favorites.ts
+│   │   │   ├── aliases.ts
 │   │   │   ├── settings.ts    # 設定と文言
 │   │   │   └── window.ts      # ランチャーの窓の大きさ
 │   │   ├── windows/           # 窓
@@ -62,7 +63,8 @@ anolaunch/
 │   │   │   └── autostart.ts
 │   │   ├── store/             # 保存するデータ
 │   │   │   ├── settings.ts    # settings.json
-│   │   │   └── favorites.ts   # favorites.json
+│   │   │   ├── favorites.ts   # favorites.json
+│   │   │   └── aliases.ts     # aliases.json（アプリの別名）
 │   │   ├── apps/              # アプリ一覧を集める（mac / windows / uwp / steam）
 │   │   ├── icons/             # アイコンの取り出し（mac / windows）とキャッシュ（cache.ts）
 │   │   ├── commands/          # コマンド（実行すると何かをする項目）。index.ts が登録と実行、notify.ts が通知
@@ -97,6 +99,7 @@ anolaunch/
 ```
 
 - `store/favorites.ts` は、設定とは別のファイルに保存する（設定の「初期値に戻す」で消えないように）
+- `store/aliases.ts`（別名）も、同じ理由で別のファイル（`aliases.json`）に保存する
 - `windows/load-page.ts` の読み込み先は、開発中は Vite のサーバー、ビルド後は `out/renderer`
 - `shared/` にはロジックを入れない（上の「方針」）
 
@@ -130,6 +133,12 @@ anolaunch/
 - Google Meet の会議を作成：Google の API は使わず（Raycast の拡張と同じ作り）、既定のブラウザで `meet.google.com/new` を開き、ブラウザのアドレスバーに会議の URL が出るのを読み取ってコピーする。ログインは、ブラウザに入っているアカウントのまま
   - Windows：PowerShell の UI Automation で、全部のブラウザの窓のアドレスバーを読む（Chrome・Edge・Firefox・Brave・Opera・Vivaldi）。開く前から出ていた会議の URL は無視する（作成ページを開いても、ブラウザが手前に来るとは限らないため）
   - Mac：AppleScript で、手前のブラウザのタブの URL を読む（Chrome 系・Arc・Safari。初回は「オートメーション」の許可が要る。Firefox は読めない）。Mac では確認できていない（TODO を見る）
+
+### 別名
+
+- アプリごとに、別名（複数可）を付けられる。本来の名前でも、別名でも検索できる。別名が入力と完全に同じアプリは、一覧の先頭に出す（`launcher/search.ts` の `filterApps`）。行には、別名を小さく出す
+- 付け方：行を選んで `Ctrl+E`（Mac は `Cmd+E`）か、行の右端のタグのボタンで、入力欄が別名の入力に切り替わる（一覧は隠れる）。カンマで区切って入力し、`Enter` で保存（空にすると消える）。`Esc` で窓を閉じると、編集はやめたことになる
+- 保存は `aliases.json`（アプリの path → 別名の配列）。1 つのアプリに 10 個まで、1 つ 50 文字まで。メインの `ipc/aliases.ts` は、一覧にあるアプリ・コマンドの path だけ受け付ける。入力から作った Web 検索の項目には付けられない
 
 ### Web 検索
 

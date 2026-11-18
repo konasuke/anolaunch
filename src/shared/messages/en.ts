@@ -6,6 +6,8 @@ const en: Record<keyof typeof ja, string> = {
   'search.settings': 'Settings',
   'favorite.add': 'Add to favorites',
   'favorite.remove': 'Remove from favorites',
+  'alias.edit': 'Set alias',
+  'alias.placeholder': 'Aliases (separate with commas)',
   'tray.tooltip': 'Anolaunch',
   'tray.show': 'Show',
   'tray.settings': 'Settings…',

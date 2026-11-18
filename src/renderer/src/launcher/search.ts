@@ -1,12 +1,26 @@
 import { KIND } from '../../../shared/kinds';
 import type { MessageKey } from '../../../shared/messages';
 import { SEARCH_ENGINES } from '../../../shared/search-engines';
-import type { AppEntry, WebSearch } from '../../../shared/types';
+import type { Aliases, AppEntry, WebSearch } from '../../../shared/types';
 
-// 名前か種類の名前に入力が含まれるものを残す（大文字小文字は区別しない）
-export function filterApps(apps: AppEntry[], query: string, kindLabel: (app: AppEntry) => string): AppEntry[] {
+// 名前・別名・種類の名前に入力が含まれるものを残す（大文字小文字は区別しない）。
+// 別名が、入力と完全に同じものは、先頭に出す（短い別名を打ったとき、名前に含むだけのアプリに埋もれないように）
+export function filterApps(
+  apps: AppEntry[],
+  aliases: Aliases,
+  query: string,
+  kindLabel: (app: AppEntry) => string,
+): AppEntry[] {
   const q = query.trim().toLowerCase();
-  return apps.filter((app) => app.name.toLowerCase().includes(q) || kindLabel(app).toLowerCase().includes(q));
+  const aliasesOf = (app: AppEntry) => (aliases[app.path] ?? []).map((a) => a.toLowerCase());
+  const found = apps.filter(
+    (app) =>
+      app.name.toLowerCase().includes(q) ||
+      kindLabel(app).toLowerCase().includes(q) ||
+      aliasesOf(app).some((a) => a.includes(q)),
+  );
+  const exact = (app: AppEntry) => aliasesOf(app).includes(q);
+  return [...found.filter(exact), ...found.filter((app) => !exact(app))];
 }
 
 // 入力が空のときに出す、お気に入りのアプリ（入れた順。一覧にもう無いアプリは出さない）
@@ -41,12 +55,13 @@ function webSearchEntry(webSearch: WebSearch, t: (key: MessageKey) => string): A
 export function computeResults(
   apps: AppEntry[],
   favorites: string[],
+  aliases: Aliases,
   query: string,
   kindLabel: (app: AppEntry) => string,
   t: (key: MessageKey) => string,
 ): AppEntry[] {
   if (query.trim() === '') return favoriteApps(apps, favorites);
-  const found = filterApps(apps, query, kindLabel);
+  const found = filterApps(apps, aliases, query, kindLabel);
   const webSearch = parseWebSearch(query);
   return webSearch ? [webSearchEntry(webSearch, t), ...found] : found;
 }

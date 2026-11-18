@@ -2,12 +2,14 @@ import { useEffect, useRef } from 'react';
 import type { RefObject } from 'react';
 import type { MessageKey } from '../../../shared/messages';
 import type { AppEntry } from '../../../shared/types';
+import { AliasButton } from './AliasButton';
 import { StarButton } from './StarButton';
 
 interface Props {
   app: AppEntry;
   selected: boolean;
   favorite: boolean;
+  aliases: string[]; // このアプリの別名（無ければ空）
   // アイコン（data URL）。取れなかったときは null、まだ取っていないときは undefined
   icon: string | null | undefined;
   kindLabel: string;
@@ -17,12 +19,14 @@ interface Props {
   onSelect: () => void;
   onLaunch: () => void;
   onToggleFavorite: () => void;
+  onEditAlias: () => void;
   onNeedIcon: (appPath: string) => void;
 }
 
 // 一覧の1行
 export function ResultRow({
-  app, selected, favorite, icon, kindLabel, isMac, t, listRef, onSelect, onLaunch, onToggleFavorite, onNeedIcon,
+  app, selected, favorite, aliases, icon, kindLabel, isMac, t, listRef, onSelect, onLaunch, onToggleFavorite, onEditAlias,
+  onNeedIcon,
 }: Props) {
   const rowRef = useRef<HTMLLIElement>(null);
 
@@ -56,9 +60,12 @@ export function ResultRow({
     >
       <img src={icon ?? undefined} alt="" />
       <span>{app.name}</span>
+      {/* 別名があれば、名前の横に小さく出す（どの名前で見つかったか分かるように） */}
+      {aliases.length > 0 && <span className="aliases">{aliases.join(', ')}</span>}
       {/* 行の右端に、種類（Application、Game など）を出す */}
       <span className="kind">{kindLabel}</span>
-      {/* 入力から作った Web 検索の行は、お気に入りに入れられないので、星を出さない */}
+      {/* 入力から作った Web 検索の行は、別名もお気に入りも付けられないので、ボタンを出さない */}
+      {!app.webSearch && <AliasButton isMac={isMac} t={t} onEdit={onEditAlias} />}
       {!app.webSearch && <StarButton favorite={favorite} isMac={isMac} t={t} onToggle={onToggleFavorite} />}
     </li>
   );

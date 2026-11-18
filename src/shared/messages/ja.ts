@@ -5,6 +5,8 @@ const ja = {
   'search.settings': '設定',
   'favorite.add': 'お気に入りに追加',
   'favorite.remove': 'お気に入りから削除',
+  'alias.edit': '別名を設定',
+  'alias.placeholder': '別名（カンマで区切って、複数）',
   'tray.tooltip': 'Anolaunch',
   'tray.show': '表示',
   'tray.settings': '設定…',

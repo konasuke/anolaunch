@@ -13,6 +13,9 @@ export interface AppEntry {
   webSearch?: WebSearch; // Web 検索の項目のとき（画面が、入力から作る。メインの一覧には無い）
 }
 
+// アプリの別名。アプリの path → 別名の配列（別名が無いアプリは入らない）
+export type Aliases = Record<string, string[]>;
+
 // 「g 文字列」の、検索先と検索語
 export interface WebSearch {
   engine: string; // SEARCH_ENGINES の id
@@ -74,6 +77,9 @@ export interface Api {
   // お気に入り（入れた順の、アプリの path の配列）。toggleFavorite は、切り替えた後の配列を返す
   getFavorites: () => Promise<string[]>;
   toggleFavorite: (appPath: string) => Promise<string[]>;
+  // 別名（アプリの path → 別名の配列）。setAliases は、1 つのアプリの別名を置き換えて（空なら消して）、全部を返す
+  getAliases: () => Promise<Aliases>;
+  setAliases: (appPath: string, aliases: string[]) => Promise<Aliases>;
   launchApp: (appPath: string) => Promise<void>;
   // 検索先（SEARCH_ENGINES の id）と検索語で、既定のブラウザで Web 検索を開く
   openWebSearch: (engine: string, query: string) => Promise<void>;
