@@ -12,4 +12,11 @@ export interface SearchEngine {
 
 export const SEARCH_ENGINES: SearchEngine[] = [
   { id: 'google', keyword: 'g', nameKey: 'search.google', hintKey: 'search.google.hint', url: 'https://www.google.com/search?q=' },
+  {
+    id: 'youtube',
+    keyword: 'y',
+    nameKey: 'search.youtube',
+    hintKey: 'search.youtube.hint',
+    url: 'https://www.youtube.com/results?search_query=',
+  },
 ];

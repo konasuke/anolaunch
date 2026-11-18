@@ -16,6 +16,8 @@ const ja = {
   'kind.search': 'Web Search',
   'search.google': '「{query}」を Google で検索', // {query} は、入力した検索語に置き換わる
   'search.google.hint': 'Google で検索：検索語を入力',
+  'search.youtube': '「{query}」を YouTube で検索',
+  'search.youtube.hint': 'YouTube で検索：検索語を入力',
   'command.meetCreate': 'Google Meet の会議を作成',
   'meet.copied': '会議の URL をコピーしました',
   'meet.failed': '会議の URL を取得できませんでした',
