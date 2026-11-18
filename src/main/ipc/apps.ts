@@ -2,6 +2,7 @@ import { ipcMain } from 'electron';
 import { getAppList, findApp, refreshApps } from '../app-list';
 import { getIcon, clearIconCache } from '../icons';
 import { launch } from '../launch';
+import { isCommandPath, runCommand } from '../commands';
 import { hideLauncher, sendToLauncher } from '../windows/launcher';
 import { INVOKE, EVENT } from '../../shared/ipc-channels';
 
@@ -23,10 +24,14 @@ function registerAppsIpc(): void {
     sendToLauncher(EVENT.cacheCleared);
   });
 
-  // 一覧にあるアプリだけ起動する（画面側から任意のパスを渡されても開かない）
+  // 一覧にあるアプリ・コマンドだけ実行する（画面側から任意のパスを渡されても開かない）
   ipcMain.handle(INVOKE.launchApp, async (event, appPath) => {
     if (!findApp(appPath)) return;
     hideLauncher();
+    if (isCommandPath(appPath)) {
+      await runCommand(appPath);
+      return;
+    }
     const error = await launch(appPath);
     if (error) console.error(`起動できませんでした: ${appPath}: ${error}`);
   });

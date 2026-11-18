@@ -1,5 +1,6 @@
 import { getApps } from './apps';
 import { preloadUwp, reloadUwp } from './apps/uwp';
+import { getCommandEntries, findCommandEntry } from './commands';
 import type { AppEntry } from '../shared/types';
 
 // アプリの一覧を持っておき、アプリの追加・削除・変更があったら、取り直す（再スキャン）
@@ -34,14 +35,15 @@ function initAppList({ onListChange }: { onListChange: () => void }): Promise<vo
   return ready;
 }
 
+// アプリの一覧に、コマンド（Google Meet の会議を作成、など）を足して返す
 async function getAppList(): Promise<AppEntry[]> {
   await ready;
-  return apps;
+  return [...apps, ...getCommandEntries()];
 }
 
-// 一覧にあるアプリを、パスから探す
+// 一覧にあるアプリ・コマンドを、パスから探す
 function findApp(appPath: string): AppEntry | undefined {
-  return known.get(appPath);
+  return known.get(appPath) ?? findCommandEntry(appPath);
 }
 
 // 再スキャンする。実行中なら、それを待つ。force でなければ、前回から 30 秒たっていないときは、何もしない

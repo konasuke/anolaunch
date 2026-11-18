@@ -65,7 +65,9 @@ anolaunch/
 │   │   │   └── favorites.ts   # favorites.json
 │   │   ├── apps/              # アプリ一覧を集める（mac / windows / uwp / steam）
 │   │   ├── icons/             # アイコンの取り出し（mac / windows）とキャッシュ（cache.ts）
-│   │   ├── app-list.ts        # アプリ一覧の取得と保持
+│   │   ├── commands/          # コマンド（実行すると何かをする項目）。index.ts が登録と実行、notify.ts が通知
+│   │   │   └── meet/          # Google Meet の会議を作成（index / url / windows / mac）
+│   │   ├── app-list.ts        # アプリ一覧の取得と保持（コマンドも足して返す）
 │   │   └── launch.ts          # アプリの起動
 │   ├── preload/
 │   │   └── index.ts           # 画面に window.api を渡す（唯一の入り口）
@@ -120,12 +122,21 @@ anolaunch/
 - Windows の動作確認は、WSL ではなく Windows 側（PowerShell）で行う。WSL で動かすと Linux 版になり、Windows 用の処理を試せない
 - Windows の処理は Mac では動かせない。Mac では型の確認（`npm run typecheck`）までしかできないので、変えたら TODO の Windows の項目に、確認することを足す
 
+### コマンド
+
+- アプリを起動するのではなく、実行すると何かをする項目。一覧では `AppEntry` の一種（`kind: 'command'`、path は `command:<ID>`）として扱い、検索・お気に入り・行の表示は、アプリと同じ仕組みを使う
+- 足すときは、`src/main/commands/index.ts` の `COMMANDS` に足す（名前は messages のキー、アイコンは `resources/` の画像）。実行は `launch-app` から来て、登録されているコマンドだけ動く
+- 実行すると窓は隠れるので、結果は `commands/notify.ts` の OS の通知で知らせる
+- Google Meet の会議を作成：Google の API は使わず（Raycast の拡張と同じ作り）、既定のブラウザで `meet.google.com/new` を開き、ブラウザのアドレスバーに会議の URL が出るのを読み取ってコピーする。ログインは、ブラウザに入っているアカウントのまま
+  - Windows：PowerShell の UI Automation で、全部のブラウザの窓のアドレスバーを読む（Chrome・Edge・Firefox・Brave・Opera・Vivaldi）。開く前から出ていた会議の URL は無視する（作成ページを開いても、ブラウザが手前に来るとは限らないため）
+  - Mac：AppleScript で、手前のブラウザのタブの URL を読む（Chrome 系・Arc・Safari。初回は「オートメーション」の許可が要る。Firefox は読めない）。Mac では確認できていない（TODO を見る）
+
 ### 画面に出す文言
 
 - 入力欄の案内、トレイのメニュー、種類の名前などは、`src/shared/messages/` の `ja.ts` と `en.ts` に、キーで書く。コードに文字列を直接書かない
 - キーは `ja.ts` が元になり、`en.ts` は同じキーを全部持つ必要がある（足りない・余分なキーは、型のエラーになる）。`t()` に渡せるのも、このキーだけ
 - メインでは `t('キー')` を使う。画面側（renderer）はメインから受け取った文言を使う（`useMessages()` の `t`）。言語が変わると、自動で入れ替わる
-- コードが比較に使うアプリの種類は、`src/shared/kinds.ts` の `KIND`（`app` / `game` / `store`）。画面に出す名前は、messages の `kind.<ID>`
+- コードが比較に使うアプリの種類は、`src/shared/kinds.ts` の `KIND`（`app` / `game` / `store` / `command`）。画面に出す名前は、messages の `kind.<ID>`
 
 ### 設定
 

@@ -5,7 +5,7 @@ import { registerHotkey } from '../system/hotkey';
 import { applyAutoStart } from '../system/autostart';
 import { refreshTray } from '../system/tray';
 import { openSettingsWindow, refreshSettingsWindowTitle, setHotkeyRecording } from '../windows/settings';
-import { toggleLauncher } from '../windows/launcher';
+import { toggleLauncher, sendToLauncher } from '../windows/launcher';
 import { INVOKE, SEND, EVENT } from '../../shared/ipc-channels';
 
 // 設定と文言。設定の読み書きは、保存したら、すぐ反映する
@@ -39,6 +39,8 @@ function registerSettingsIpc(): void {
       refreshSettingsWindowTitle();
       // 開いている窓（ランチャーと設定画面）に、文言が変わったことを伝える
       for (const w of BrowserWindow.getAllWindows()) w.webContents.send(EVENT.messagesChanged);
+      // コマンドの名前は言語で変わるので、ランチャーに一覧を取り直させる
+      sendToLauncher(EVENT.appsChanged);
     }
     return { settings: after };
   });
